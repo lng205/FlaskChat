@@ -80,8 +80,20 @@ def page_not_found(_):
 def home():
     if request.args.get("username") is None:
         abort(404)
-    return render_template("home.jinja", username=request.args.get("username"))
+    username = request.args.get("username")
+    friends = db.get_friends(username)
+    return render_template("home.jinja", username=username, friends=friends)
 
+# Handles a post request when the user clicks the add friend button
+@app.route("/home/add", methods=["POST"])
+def add_friend():
+    if not request.is_json:
+        abort(404)
+
+    username = request.json.get("username")
+    friend = request.json.get("friend")
+
+    return db.add_friend(username, friend)
 
 
 if __name__ == '__main__':

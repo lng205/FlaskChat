@@ -5,7 +5,7 @@
 
 
 {% block content %} 
-   <style>
+<style>
     nav {
         border-bottom: 1px solid black;
         overflow: auto
@@ -24,6 +24,16 @@
         margin-bottom: 2px;
     }
 
+    main {
+        display: flex; /* Use Flexbox */
+        flex-direction: row; /* Align children in a row */
+    }
+
+    #friends_interaction {
+        flex-grow: 1; /* Allows the friends section to take up the remaining space */
+        padding-left: 20px; /* Optional: Adds some space between the message box and the friends section */
+    }
+
 </style>
 
 <!--Navbar, you'll see the username here-->
@@ -36,6 +46,7 @@
 <h1>Messaging App </h1>
 
 <main>
+    <div>
     <!-- The messages are displayed here -->
     <section id="message_box"></section>
 
@@ -56,6 +67,36 @@
         <input id="message" placeholder="message">
         <button onclick="send()">Send</button>
         <button onclick="leave()">Leave Room</button>
+    </section>
+    </div>
+
+    <!-- Friend interactions section -->
+    <section id="friends_interaction">
+        <!-- View current friends -->
+        <div id="current_friends">
+            <h2>Current Friends</h2>
+            <ul id="friends_list">
+                <!-- Dynamic list of friends will be populated here -->
+                {% for friend in friends %}
+                    <li>{{ friend }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- View pending friend requests -->
+        <div id="pending_requests">
+            <h2>Pending Friend Requests</h2>
+            <ul id="requests_list">
+                <!-- Dynamic list of pending requests will be populated here -->
+            </ul>
+        </div>
+
+        <!-- Add new friends -->
+        <div id="add_friend">
+            <h2>Add New Friend</h2>
+            <input id="new_friend_username" placeholder="Enter username">
+            <button onclick="addFriend()">Add Friend</button>
+        </div>
     </section>
 </main>
 
@@ -158,5 +199,22 @@
         box.append(child);
     }
     
+    // Create a post request to the server to add a friend
+    async function addFriend() {
+        let new_friend = $("#new_friend_username").val();
+        let addFriendURL = "{{ url_for('add_friend') }}";
+        let res = await axios.post(addFriendURL, {
+            username: username,
+            friend: new_friend
+        });
+
+        if (res.data == "success") {
+            // Refresh the page to show the new friend
+            location.reload();
+        } else {
+            alert(res.data);
+        }
+    }
+
 </script>
 {% endblock %}
