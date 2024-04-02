@@ -8,6 +8,7 @@ from flask import Flask, render_template, request, abort, url_for
 from flask_socketio import SocketIO
 import db
 import secrets
+import bcrypt
 
 # import logging
 
@@ -39,15 +40,13 @@ def login():
 def login_user():
     if not request.is_json:
         abort(404)
-
     username = request.json.get("username")
-    password = request.json.get("password")
-
-    user =  db.get_user(username)
+    password = request.json.get("password").encode()
+    user = db.get_user(username)
     if user is None:
         return "Error: User does not exist!"
-
-    if user.password != password:
+    stored_hashed_password = user.password
+    if not bcrypt.checkpw(password, stored_hashed_password):# 使用检查输入的是否与hash匹配
         return "Error: Password does not match!"
 
     return url_for('home', username=request.json.get("username"))
