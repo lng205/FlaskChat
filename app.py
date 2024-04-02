@@ -81,8 +81,10 @@ def home():
     if request.args.get("username") is None:
         abort(404)
     username = request.args.get("username")
-    friends = db.get_friends(username)
-    return render_template("home.jinja", username=username, friends=friends)
+    if db.get_user(username) is None:
+        abort(404)
+    friends, pending_friends = db.get_friends(username)
+    return render_template("home.jinja", username=username, friends=friends, pending_friends=pending_friends)
 
 # Handles a post request when the user clicks the add friend button
 @app.route("/home/add", methods=["POST"])
@@ -94,6 +96,17 @@ def add_friend():
     friend = request.json.get("friend")
 
     return db.add_friend(username, friend)
+
+# Handles a post request when the user clicks the accept friend button
+@app.route("/home/accept", methods=["POST"])
+def accept_friend():
+    if not request.is_json:
+        abort(404)
+
+    username = request.json.get("username")
+    friend = request.json.get("friend")
+
+    return db.accept_friend(username, friend)
 
 
 if __name__ == '__main__':

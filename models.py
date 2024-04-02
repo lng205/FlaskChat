@@ -22,6 +22,12 @@ class Friendship(Base):
     __tablename__ = "friendship"
     user1 = mapped_column(ForeignKey("user.username"), primary_key=True)
     user2 = mapped_column(ForeignKey("user.username"), primary_key=True)
+    
+
+class PendingFriendRequest(Base):
+    __tablename__ = "pending_friend_request"
+    user1 = mapped_column(ForeignKey("user.username"), primary_key=True)
+    user2 = mapped_column(ForeignKey("user.username"), primary_key=True)
 
 
 # model to store user information
@@ -41,6 +47,12 @@ class User(Base):
         secondary=Friendship.__tablename__,
         primaryjoin=username == Friendship.user1,
         secondaryjoin=username == Friendship.user2,
+    )
+    pending_friends: Mapped[List["User"]] = relationship(
+        "User",
+        secondary=PendingFriendRequest.__tablename__,
+        primaryjoin=username == PendingFriendRequest.user1,
+        secondaryjoin=username == PendingFriendRequest.user2,
     )
     
 

@@ -88,6 +88,11 @@
             <h2>Pending Friend Requests</h2>
             <ul id="requests_list">
                 <!-- Dynamic list of pending requests will be populated here -->
+                {% for friend in pending_friends %}
+                    <li>{{ friend }}</li>
+                    <!-- a confirm button -->
+                    <button onclick="confirmFriend('{{ friend }}')">Confirm</button>
+                {% endfor %}
             </ul>
         </div>
 
@@ -206,6 +211,22 @@
         let res = await axios.post(addFriendURL, {
             username: username,
             friend: new_friend
+        });
+
+        if (res.data == "success") {
+            // Refresh the page to show the new friend
+            location.reload();
+        } else {
+            alert(res.data);
+        }
+    }
+
+    // Create a post request to the server to confirm a friend
+    async function confirmFriend(friend) {
+        let confirmFriendURL = "{{ url_for('accept_friend') }}";
+        let res = await axios.post(confirmFriendURL, {
+            username: username,
+            friend: friend
         });
 
         if (res.data == "success") {
