@@ -63,12 +63,11 @@ def signup_user():
         abort(404)
     username = request.json.get("username")
     password = request.json.get("password")
-    
-    if not password:
-        return "Error: Password cannot be empty!"
-
+    password_bytes = password.encode()
     if db.get_user(username) is None:
-        db.insert_user(username, password)
+        salt = bcrypt.gensalt(rounds=12)  # 轮数越大越安全，最大15，但是太大就好慢
+        hashed_password = bcrypt.hashpw(password_bytes, salt)
+        db.insert_user(username, hashed_password)
         return url_for('home', username=username)
     return "Error: User already exists!"
 
