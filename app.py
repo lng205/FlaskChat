@@ -63,6 +63,9 @@ def signup_user():
         abort(404)
     username = request.json.get("username")
     password = request.json.get("password")
+    
+    if not password:
+        return "Error: Password cannot be empty!"
 
     if db.get_user(username) is None:
         db.insert_user(username, password)

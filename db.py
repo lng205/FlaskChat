@@ -44,6 +44,12 @@ def add_friend(username: str, friendname: str):
         if friend in user.friends:
             return "Error: User is already your friend!"
         
+        if friend == user:
+            return "Error: You cannot add yourself as a friend!"
+        
+        if friend in user.pending_friends:
+            return "Error: Friend request already sent!"
+        
         friend.pending_friends.append(user)
         session.commit()
 
