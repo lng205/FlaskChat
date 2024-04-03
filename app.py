@@ -42,9 +42,11 @@ def login_user():
         abort(404)
     username = request.json.get("username")
     password = request.json.get("password").encode()
+
     user = db.get_user(username)
     if user is None:
         return "Error: User does not exist!"
+
     stored_hashed_password = user.password
     if not bcrypt.checkpw(password, stored_hashed_password):# 使用检查输入的是否与hash匹配
         return "Error: Password does not match!"
@@ -63,13 +65,18 @@ def signup_user():
         abort(404)
     username = request.json.get("username")
     password = request.json.get("password")
+    public_key = request.json.get("publicKey")
+
+    if db.get_user(username):
+        return "Error: User already exists!"
+
     password_bytes = password.encode()
-    if db.get_user(username) is None:
-        salt = bcrypt.gensalt(rounds=12)  # 轮数越大越安全，最大15，但是太大就好慢
-        hashed_password = bcrypt.hashpw(password_bytes, salt)
-        db.insert_user(username, hashed_password)
-        return url_for('home', username=username)
-    return "Error: User already exists!"
+    salt = bcrypt.gensalt(rounds=12)  # 轮数越大越安全，最大15，但是太大就好慢
+    hashed_password = bcrypt.hashpw(password_bytes, salt)
+
+    db.insert_user(username, hashed_password, public_key)
+
+    return url_for('home', username=username)
 
 # handler when a "404" error happens
 @app.errorhandler(404)

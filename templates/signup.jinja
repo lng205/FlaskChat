@@ -13,7 +13,7 @@ Sign up page, pretty much the same as login.
     <button onclick="signup()">Sign up</button>
 
     <script>
-         function isValidURL(string) {
+        function isValidURL(string) {
             if (string.length == 0) {
                 return false;
             }
@@ -23,18 +23,49 @@ Sign up page, pretty much the same as login.
             return false;
         }
 
-        // this function is identical to login(), see login.jinja
         async function signup() {
-            let loginURL = "{{ url_for('signup_user') }}";
-            let res = await axios.post(loginURL, {
+            let signupURL = "{{ url_for('signup_user') }}";
+            keyPair = await generateKeyPair();
+            let res = await axios.post(signupURL, {
                 username: $("#username").val(),
-                password: $("#password").val()
+                password: $("#password").val(),
+                // Export the public key and send it to the server
+                publicKey: await exportKey(keyPair.publicKey, true)
             });
             if (!isValidURL(res.data)) {
                 alert(res.data);
                 return;
             }
+
+            // Save the private key in local storage using
+            const privateKey = await exportKey(keyPair.privateKey, false);
+            window.localStorage.setItem($("#username").val(), privateKey);
+
+            // Open the new page in the same tab
             window.open(res.data, "_self")
+        }
+
+        async function generateKeyPair() {
+            const keyPair = await window.crypto.subtle.generateKey(
+                {
+                    name: "RSA-OAEP",
+                    modulusLength: 2048, // Can be 1024, 2048, or 4096
+                    publicExponent: new Uint8Array([1, 0, 1]),
+                    hash: {name: "SHA-256"},
+                },
+                true, // Whether the key is extractable (i.e., can be used in exportKey)
+                ["encrypt", "decrypt"] // Key usages
+            );
+            return keyPair;
+        }
+
+        async function exportKey(key, pub) {
+            const exported = await window.crypto.subtle.exportKey(
+                pub ? "spki" : "pkcs8",
+                key
+            );
+            const exportedAsBase64 = window.btoa(String.fromCharCode.apply(null, new Uint8Array(exported)));
+            return exportedAsBase64;
         }
     </script>
 {% endblock %}
