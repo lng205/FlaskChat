@@ -90,8 +90,9 @@
                 <!-- Dynamic list of pending requests will be populated here -->
                 {% for friend in pending_friends %}
                     <li>{{ friend }}</li>
-                    <!-- a confirm button -->
-                    <button onclick="confirmFriend('{{ friend }}')">Confirm</button>
+                    <!-- Two buttons for confirming and rejecting friend request -->
+                    <button onclick="processFriendRequest('{{ friend }}', true)">Confirm</button>
+                    <button onclick="processFriendRequest('{{ friend }}', false)">Reject</button>
                 {% endfor %}
             </ul>
         </div>
@@ -221,12 +222,13 @@
         }
     }
 
-    // Create a post request to the server to confirm a friend
-    async function confirmFriend(friend) {
-        let confirmFriendURL = "{{ url_for('accept_friend') }}";
+    // Create a post request to the server to process a friend request
+    async function processFriendRequest(friend, accept) {
+        let confirmFriendURL = "{{ url_for('process_friend_request') }}";
         let res = await axios.post(confirmFriendURL, {
             username: username,
-            friend: friend
+            friend: friend,
+            accept: accept
         });
 
         if (res.data == "success") {

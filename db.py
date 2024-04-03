@@ -54,14 +54,15 @@ def get_friends(username: str):
         user = session.get(User, username)
         return [friend.username for friend in user.friends], [friend.username for friend in user.pending_friends]
     
-def accept_friend(username: str, friendname: str):
+def process_friend(username: str, friendname: str, accept: bool):
     with Session(engine) as session:
         user = session.get(User, username)
         friend = session.get(User, friendname)
         
         user.pending_friends.remove(friend)
-        user.friends.append(friend)
-        friend.friends.append(user)
+        if accept:
+            user.friends.append(friend)
+            friend.friends.append(user)
         session.commit()
 
         return "success"

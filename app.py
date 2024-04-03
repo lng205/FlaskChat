@@ -98,14 +98,15 @@ def add_friend():
 
 # Handles a post request when the user clicks the accept friend button
 @app.route("/home/accept", methods=["POST"])
-def accept_friend():
+def process_friend_request():
     if not request.is_json:
         abort(404)
 
     username = request.json.get("username")
     friend = request.json.get("friend")
+    accept = request.json.get("accept")
 
-    return db.accept_friend(username, friend)
+    return db.process_friend(username, friend, accept)
 
 
 if __name__ == '__main__':
