@@ -8,6 +8,12 @@ To resolve this issue, we can sign the client's public key by a verified CA, or 
 
 The remaining part of the project seems secure logically, and satisfies the requirements.  Only the two communicating parties have the capability to decipher the message, and ensure that the message is not tampered with secretly.
 
+Currnet Bugs:
+
+1. User's first message can not be sent, and user have to send the first message to be able to receive messages.
+2. History's order may change
+3. Scenarios where there are multiple users in the same room not tested
+
 ## Timeline
 
 ### 4/1
@@ -31,3 +37,6 @@ The remaining part of the project seems secure logically, and satisfies the requ
 - 19:00 - 22:00: 实现在用户本地生成对称密钥，并通过JS localStorage存储私钥，通过服务器存储公钥。重新理解题目要求，优化消息加密方案
 
 ### 4/4
+
+- 9:00 - 12:00: 实现加密消息
+- 15:00 - 18:00: 实现解密接收，实现加密消息记录，实现HTTPS，实现token验证
