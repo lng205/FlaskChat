@@ -182,6 +182,10 @@
             // Decrypt the message
             decryptMessage(sender, message).then((decryptedMessage) => {
                 add_message(sender + ": " + decryptedMessage, color);
+                // Update history
+                encryptMessage(username, sender + ": " + decryptedMessage).then((encryptedMessage) => {
+                    socket.emit("store_history", username, encryptedMessage);
+                });
             });
         }
         else {
@@ -197,14 +201,20 @@
         $("#message").val("");
 
         // Encrypt the message
-        let encryptedMessage = await encryptMessage(message, Cookies.get("receiver"));
+        let encryptedMessage = await encryptMessage(Cookies.get("receiver"), message);
 
         // Send the encrypted message
         socket.emit("send", username, encryptedMessage, room_id);
         console.log("Sent encrypted message: " + encryptedMessage);
 
         // Print the original message to the chat box
-        add_message(username + ": " + message, "blue");
+        const display = username + ": " + message;
+        add_message(display, "blue");
+
+        // Update history
+        encryptMessage(username, display).then((encryptedMessage) => {
+            socket.emit("store_history", username, encryptedMessage);
+        });
     }
 
     // we emit a join room event to the server to join a room
@@ -248,11 +258,6 @@
         let box = $("#message_box");
         let child = $(`<p style="color:${color}; margin: 0px;"></p>`).text(message);
         box.append(child);
-
-        // Update history
-        encryptMessage(message, username).then((encryptedMessage) => {
-            socket.emit("store_history", username, encryptedMessage);
-        });
     }
 
     // Create a post request to the server to add a friend
@@ -312,9 +317,9 @@
         return key;
     }
 
-    async function encryptMessage(message, receiver) {
+    async function encryptMessage(receiver, message) {
         // Get the public key of the receiver
-        const publicKeyBase64 = getPublicKey(receiver);
+        const publicKeyBase64 = await getPublicKey(receiver);
         // Convert base64 encoded public key to an ArrayBuffer
         const publicKeyData = window.atob(publicKeyBase64);
         const publicKeyBuffer = new Uint8Array(publicKeyData.length);
@@ -389,6 +394,9 @@
 
         // Get the private key from local storage
         const privateKeyBase64 = localStorage.getItem(username);
+        if (!privateKeyBase64) {
+            return "Private key not found";
+        }
         // Convert base64 encoded private key to an ArrayBuffer
         const privateKeyData = window.atob(privateKeyBase64);
         const privateKeyBuffer = new Uint8Array(privateKeyData.length);
@@ -431,7 +439,7 @@
         }
 
         // Verify the signature
-        const publicKeyBase64 = getPublicKey(sender);
+        const publicKeyBase64 = await getPublicKey(sender);
         const publicKeyData = window.atob(publicKeyBase64);
         const publicKeyBuffer = new Uint8Array(publicKeyData.length);
         for (let i = 0; i < publicKeyData.length; i++) {
@@ -480,7 +488,7 @@
             let history = res.data;
             for (let message of history) {
                 decryptMessage(username, message).then((decryptedMessage) => {
-                    add_message(decryptedMessage, "gray");
+                    add_message(decryptedMessage, "grey");
                 });
             }
         });
