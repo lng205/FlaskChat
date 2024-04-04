@@ -174,7 +174,7 @@
         }
         else if (sender) {
             // Decrypt the message
-            decryptMessage(message).then((decryptedMessage) => {
+            decryptMessage(sender, message).then((decryptedMessage) => {
                 add_message(sender + ": " + decryptedMessage, color);
             });
         }
@@ -186,13 +186,12 @@
     // we'll send the message to the server by emitting a "send" event
     async function send() {
         receiver = Cookies.get("receiver");
-        const publicKeyBase64 = await getPublicKey(receiver);
 
         let message = $("#message").val();
         $("#message").val("");
 
         // Encrypt the message
-        let encryptedMessage = await encryptMessage(publicKeyBase64, message);
+        let encryptedMessage = await encryptMessage(message);
 
         // Send the encrypted message
         socket.emit("send", username, encryptedMessage, room_id);
@@ -300,7 +299,9 @@
         return key;
     }
 
-    async function encryptMessage(publicKeyBase64, message) {
+    async function encryptMessage(message) {
+        // Get the public key of the receiver
+        const publicKeyBase64 = getPublicKey(Cookies.get("receiver"));
         // Convert base64 encoded public key to an ArrayBuffer
         const publicKeyData = window.atob(publicKeyBase64);
         const publicKeyBuffer = new Uint8Array(publicKeyData.length);
@@ -333,10 +334,45 @@
 
         // Convert encrypted data to base64
         const encryptedBase64 = window.btoa(String.fromCharCode.apply(null, new Uint8Array(encrypted)));
-        return encryptedBase64;
+
+        // Sign the message
+        const privateKeyBase64 = localStorage.getItem(username);
+        const privateKeyData = window.atob(privateKeyBase64);
+        const privateKeyBuffer = new Uint8Array(privateKeyData.length);
+        for (let i = 0; i < privateKeyData.length; i++) {
+            privateKeyBuffer[i] = privateKeyData.charCodeAt(i);
+        }
+
+        const privateKey = await window.crypto.subtle.importKey(
+            "pkcs8",
+            privateKeyBuffer,
+            {
+                name: "RSA-PSS",
+                hash: {name: "SHA-256"},
+            },
+            true,
+            ["sign"]
+        );
+
+        const signature = await window.crypto.subtle.sign(
+            {
+                name: "RSA-PSS",
+                saltLength: 32,
+            },
+            privateKey,
+            messageBuffer
+        );
+
+        const signatureBase64 = window.btoa(String.fromCharCode.apply(null, new Uint8Array(signature)));
+
+        // Return the encrypted message and signature
+        return encryptedBase64 + "." + signatureBase64;
     }
 
-    async function decryptMessage(encryptedMessageBase64) {
+    async function decryptMessage(sender, encryptedMessageBase64) {
+        // Split the encrypted message and signature
+        const [encryptedMessage, signature] = encryptedMessageBase64.split(".");
+
         // Get the private key from local storage
         const privateKeyBase64 = localStorage.getItem(username);
         // Convert base64 encoded private key to an ArrayBuffer
@@ -359,7 +395,7 @@
         );
 
         // Convert base64 encoded encrypted message to an ArrayBuffer
-        const encryptedData = window.atob(encryptedMessageBase64);
+        const encryptedData = window.atob(encryptedMessage);
         const encryptedBuffer = new Uint8Array(encryptedData.length);
         for (let i = 0; i < encryptedData.length; i++) {
             encryptedBuffer[i] = encryptedData.charCodeAt(i);
@@ -375,6 +411,45 @@
         // Convert decrypted data to a string
         const decoder = new TextDecoder();
         const decryptedMessage = decoder.decode(decrypted);
+
+        // Verify the signature
+        const publicKeyBase64 = getPublicKey(sender);
+        const publicKeyData = window.atob(publicKeyBase64);
+        const publicKeyBuffer = new Uint8Array(publicKeyData.length);
+        for (let i = 0; i < publicKeyData.length; i++) {
+            publicKeyBuffer[i] = publicKeyData.charCodeAt(i);
+        }
+
+        const publicKey = await window.crypto.subtle.importKey(
+            "spki",
+            publicKeyBuffer,
+            {
+                name: "RSA-PSS",
+                hash: {name: "SHA-256"},
+            },
+            true,
+            ["verify"]
+        );
+
+        const signatureData = window.atob(signature);
+        const signatureBuffer = new Uint8Array(signatureData.length);
+        for (let i = 0; i < signatureData.length; i++) {
+            signatureBuffer[i] = signatureData.charCodeAt(i);
+        }
+
+        const verified = await window.crypto.subtle.verify(
+            {
+                name: "RSA-PSS",
+                saltLength: 32,
+            },
+            publicKey,
+            signatureBuffer,
+            decrypted
+        );
+
+        if (!verified) {
+            return "Message could not be verified";
+        }
         return decryptedMessage;
     }
 </script>
