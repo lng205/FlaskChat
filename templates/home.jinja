@@ -165,15 +165,40 @@
 
     // an incoming message arrives, we'll add the message to the message box
     socket.on("incoming", (msg, color="black") => {
-        add_message(msg, color);
+        console.log("Received message: " + msg);
+        // Parse the message in the format of "sender: message"
+        let [sender, message] = msg.includes(": ") ? msg.split(": ") : ["", msg];
+        if (sender == username) {
+            color = "blue";
+            add_message(msg, color);
+        }
+        else if (sender) {
+            // Decrypt the message
+            decryptMessage(message).then((decryptedMessage) => {
+                add_message(sender + ": " + decryptedMessage, color);
+            });
+        }
+        else {
+            add_message(msg, color);
+        }
     })
     
     // we'll send the message to the server by emitting a "send" event
-    function send() {
+    async function send() {
+        receiver = Cookies.get("receiver");
+        const publicKeyBase64 = await getPublicKey(receiver);
+
         let message = $("#message").val();
         $("#message").val("");
-        socket.emit("send", username, message, room_id);  
-    } 
+
+        // Encrypt the message
+        let encryptedMessage = await encryptMessage(publicKeyBase64, message);
+
+        // Send the encrypted message
+        socket.emit("send", username, encryptedMessage, room_id);
+
+        console.log("Sent encrypted message: " + msg);
+    }
 
     // we emit a join room event to the server to join a room
     function join_room() {
@@ -198,7 +223,7 @@
             $("#chat_box").hide();
             $("#input_box").show();
         });
-     
+        Cookies.set("receiver", receiver);
     }
 
     // function when the user clicks on "Leave Room"
@@ -257,6 +282,100 @@
         $("#receiver").val(friend);
         // Directly call join_room to start the chat
         join_room();
+    }
+
+    // fetch a public key and store it in local storage
+    function getPublicKey(username) {
+        let key = localStorage.getItem(username + "_pub");
+        if (!key) {
+            socket.emit("get_key", username, (res) => {
+                if (res == "error") {
+                    alert("User does not exist");
+                    return;
+                }
+                localStorage.setItem(username + "_pub", res);
+                key = res;
+            });
+        }
+        return key;
+    }
+
+    async function encryptMessage(publicKeyBase64, message) {
+        // Convert base64 encoded public key to an ArrayBuffer
+        const publicKeyData = window.atob(publicKeyBase64);
+        const publicKeyBuffer = new Uint8Array(publicKeyData.length);
+        for (let i = 0; i < publicKeyData.length; i++) {
+            publicKeyBuffer[i] = publicKeyData.charCodeAt(i);
+        }
+
+        // Import the public key
+        const publicKey = await window.crypto.subtle.importKey(
+            "spki",
+            publicKeyBuffer,
+            {
+                name: "RSA-OAEP",
+                hash: {name: "SHA-256"},
+            },
+            true,
+            ["encrypt"]
+        );
+
+        // Convert message to an ArrayBuffer
+        const encoder = new TextEncoder();
+        const messageBuffer = encoder.encode(message);
+
+        // Encrypt the message
+        const encrypted = await window.crypto.subtle.encrypt(
+            {name: "RSA-OAEP"},
+            publicKey,
+            messageBuffer
+        );
+
+        // Convert encrypted data to base64
+        const encryptedBase64 = window.btoa(String.fromCharCode.apply(null, new Uint8Array(encrypted)));
+        return encryptedBase64;
+    }
+
+    async function decryptMessage(encryptedMessageBase64) {
+        // Get the private key from local storage
+        const privateKeyBase64 = localStorage.getItem(username);
+        // Convert base64 encoded private key to an ArrayBuffer
+        const privateKeyData = window.atob(privateKeyBase64);
+        const privateKeyBuffer = new Uint8Array(privateKeyData.length);
+        for (let i = 0; i < privateKeyData.length; i++) {
+            privateKeyBuffer[i] = privateKeyData.charCodeAt(i);
+        }
+
+        // Import the private key
+        const privateKey = await window.crypto.subtle.importKey(
+            "pkcs8",
+            privateKeyBuffer,
+            {
+                name: "RSA-OAEP",
+                hash: {name: "SHA-256"},
+            },
+            true,
+            ["decrypt"]
+        );
+
+        // Convert base64 encoded encrypted message to an ArrayBuffer
+        const encryptedData = window.atob(encryptedMessageBase64);
+        const encryptedBuffer = new Uint8Array(encryptedData.length);
+        for (let i = 0; i < encryptedData.length; i++) {
+            encryptedBuffer[i] = encryptedData.charCodeAt(i);
+        }
+
+        // Decrypt the message
+        const decrypted = await window.crypto.subtle.decrypt(
+            {name: "RSA-OAEP"},
+            privateKey,
+            encryptedBuffer
+        );
+
+        // Convert decrypted data to a string
+        const decoder = new TextDecoder();
+        const decryptedMessage = decoder.decode(decrypted);
+        return decryptedMessage;
     }
 </script>
 {% endblock %}

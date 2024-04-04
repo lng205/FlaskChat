@@ -2,5 +2,41 @@
 
 ![task](task.jpg)
 
-- Run into error when installing the requirements using python 3.12.2. Install success after switching to 3.11.8
-- `flask run` works
+In this project, we are exchanging the public key via the server, a practice that potentially exposes the system to man-in-the-middle attacks, rendering it inherently insecure.
+
+To resolve this issue, we can sign the client's public key by a verified CA, or we can exchange the key via an existing secure protocol(e.g. In person). However, such measures fall outside the purview of this project's scope.
+
+The remaining part of the project seems secure logically, and satisfies the requirements.  Only the two communicating parties have the capability to decipher the message, and ensure that the message is not tampered with secretly.
+
+<!-- The given flask socket framework is broadcasting the message to all the clients in the same room. Clients in a room can receive message from multiple clients in the same room. But a client should only send message to one client in the room at a time.
+
+Implementing a secure communication channel between the client and the server using the public key encryption.
+
+Do not use symmetric encryption due to:
+
+1. The requirement of storing the message history on the server. We have to store every symmetric key to decrypt the message history. In practice, The key is nomally discarded after the session ends.
+2. The given flask socket framework is broadcasting the message to all the clients in the same room, making the process of sharing the symmetric key between the clients difficult. -->
+
+## Timeline
+
+### 4/1
+
+- 15:00 - 18:00: 理解项目需求，配置开发环境，熟悉代码框架
+- 20:00 - 20:40: 会议分享讲解代码框架的实现逻辑，讨论好友功能的实现方式，讨论数据库设计
+- 20:40 - 23:00: 开发好友功能
+
+### 4/2
+
+- 8:30 - 10:30: 使用SqlAlchemy设计数据库，建立多对多自引用关系，调整前端设计，实现好友功能。具体包括：
+  - 好友请求的发送和接收
+  - 好友请求的接受
+  - 好友列表的显示
+- 20:00 - 21:00: 会议分享讲解好友功能的实现逻辑，讨论消息加密的实现方式，完善好友功能：拒绝请求；聊天时检查好友关系
+
+### 4/3
+
+- 10:30 - 12:30: 整理会议中的代码改动，优化代码细节，构思消息加密策略
+- 15:00 - 18:00: 查阅信息安全资料，设计消息加密方案，文字讨论加密策略
+- 19:00 - 22:00: 实现在用户本地生成对称密钥，并通过JS localStorage存储私钥，通过服务器存储公钥。重新理解题目要求，优化消息加密方案
+
+### 4/4

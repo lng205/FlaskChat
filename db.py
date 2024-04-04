@@ -72,3 +72,10 @@ def process_friend(username: str, friendname: str, accept: bool):
         session.commit()
 
         return "success"
+    
+def get_key(username: str):
+    with Session(engine) as session:
+        user = session.get(User, username)
+        if user is None:
+            return "error"
+        return user.public_key

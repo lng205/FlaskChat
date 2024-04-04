@@ -91,3 +91,7 @@ def leave(username, room_id):
     emit("incoming", (f"{username} has left the room.", "red"), to=room_id)
     leave_room(room_id)
     room.leave_room(username)
+
+@socketio.on("get_key")
+def get_key(username):
+    return db.get_key(username)
