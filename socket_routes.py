@@ -16,12 +16,23 @@ from models import Room
 
 import db
 
+import jwt
+from flask import current_app as app
+
 room = Room()
 
 # when the client connects to a socket
 # this event is emitted when the io() function is called in JS
 @socketio.on('connect')
 def connect():
+    # check if the user is authenticated
+    token = request.cookies.get("auth_token")
+    try:
+        jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+    except Exception as e:
+        print(e)
+        return
+
     username = request.cookies.get("username")
     room_id = request.cookies.get("room_id")
     if room_id is None or username is None:
