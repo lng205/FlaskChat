@@ -4,7 +4,7 @@
 {% extends 'base.jinja' %}
 
 
-{% block content %} 
+{% block content %}
 <style>
     nav {
         border-bottom: 1px solid black;
@@ -12,26 +12,30 @@
     }
 
     #message_box {
-        border: 1px solid black; 
-        height: 400px; 
-        width: 800px; 
+        border: 1px solid black;
+        height: 400px;
+        width: 800px;
         overflow: auto;
         padding: 2px;
     }
 
-    .text  {
+    .text {
         margin-top: 2px;
         margin-bottom: 2px;
     }
 
     main {
-        display: flex; /* Use Flexbox */
-        flex-direction: row; /* Align children in a row */
+        display: flex;
+        /* Use Flexbox */
+        flex-direction: row;
+        /* Align children in a row */
     }
 
     #friends_interaction {
-        flex-grow: 1; /* Allows the friends section to take up the remaining space */
-        padding-left: 20px; /* Optional: Adds some space between the message box and the friends section */
+        flex-grow: 1;
+        /* Allows the friends section to take up the remaining space */
+        padding-left: 20px;
+        /* Optional: Adds some space between the message box and the friends section */
     }
 
     #friends_list li {
@@ -43,16 +47,17 @@
     }
 
     #friends_list li:hover {
-        background-color: #f0f0f0; /* Light grey background on hover */
-        color: #007bff; /* Change text color on hover */
+        background-color: #f0f0f0;
+        /* Light grey background on hover */
+        color: #007bff;
+        /* Change text color on hover */
     }
-
 </style>
 
 <!--Navbar, you'll see the username here-->
 <nav style="border-bottom: 1px solid black;">
     <ol style="float: right">
-        <li style="display:inline-block">Username:  {{ username }} </li>
+        <li style="display:inline-block">Username: {{ username }} </li>
     </ol>
 </nav>
 
@@ -60,27 +65,27 @@
 
 <main>
     <div>
-    <!-- The messages are displayed here -->
-    <section id="message_box"></section>
+        <!-- The messages are displayed here -->
+        <section id="message_box"></section>
 
-    <!-- These part ideally should be a form element, 
+        <!-- These part ideally should be a form element, 
     but I wrote this code a year ago and I don't want to break anything...-->
-    <section id="chat_box">
-        <p class="text">Chat with: </p>
-        <input id="receiver" placeholder="username">
-        <!-- MDN says its bad practice to use the onclick attribute,
+        <section id="chat_box">
+            <p class="text">Chat with: </p>
+            <input id="receiver" placeholder="username">
+            <!-- MDN says its bad practice to use the onclick attribute,
         but we're using it anyways coz its easy :)-->
-        <button onclick="join_room()">Chat</button>
-    </section>
+            <button onclick="join_room()">Chat</button>
+        </section>
 
-    <!-- The (message) input box is set to display: none initially, 
+        <!-- The (message) input box is set to display: none initially, 
     this means the input box is "invisible" initially-->
-    <section id="input_box" style="display: none" >
-        <p class="text">Message: </p>
-        <input id="message" placeholder="message">
-        <button onclick="send()">Send</button>
-        <button onclick="leave()">Leave Room</button>
-    </section>
+        <section id="input_box" style="display: none">
+            <p class="text">Message: </p>
+            <input id="message" placeholder="message">
+            <button onclick="send()">Send</button>
+            <button onclick="leave()">Leave Room</button>
+        </section>
     </div>
 
     <!-- Friend interactions section -->
@@ -91,7 +96,7 @@
             <ul id="friends_list">
                 <!-- Dynamic list of friends will be populated here -->
                 {% for friend in friends %}
-                    <li onclick="startChatWith('{{ friend }}')">{{ friend }}</li>
+                <li onclick="startChatWith('{{ friend }}')">{{ friend }}</li>
                 {% endfor %}
             </ul>
         </div>
@@ -102,10 +107,10 @@
             <ul id="requests_list">
                 <!-- Dynamic list of pending requests will be populated here -->
                 {% for friend in pending_friends %}
-                    <li>{{ friend }}</li>
-                    <!-- Two buttons for confirming and rejecting friend request -->
-                    <button onclick="processFriendRequest('{{ friend }}', true)">Confirm</button>
-                    <button onclick="processFriendRequest('{{ friend }}', false)">Reject</button>
+                <li>{{ friend }}</li>
+                <!-- Two buttons for confirming and rejecting friend request -->
+                <button onclick="processFriendRequest('{{ friend }}', true)">Confirm</button>
+                <button onclick="processFriendRequest('{{ friend }}', false)">Reject</button>
                 {% endfor %}
             </ul>
         </div>
@@ -133,7 +138,7 @@
 
     // when the user presses the enter key inside of the "receiver box"
     // the user joins a (socket) room
-     $("#receiver").on("keyup", (e) => {
+    $("#receiver").on("keyup", (e) => {
         if (e.key == "Enter") {
             join_room();
         }
@@ -152,8 +157,9 @@
         $("#chat_box").hide();
         $("#input_box").show();
         room_id = parseInt(Cookies.get("room_id"));
+        getHistory();
     })
-    
+
     // Here's the Socket IO part of the code
     // things get a bit complicated here so brace yourselves :P
     let username = "{{ username }}";
@@ -164,13 +170,13 @@
     const socket = io();
 
     // an incoming message arrives, we'll add the message to the message box
-    socket.on("incoming", (msg, color="black") => {
+    socket.on("incoming", (msg, color = "black") => {
         console.log("Received message: " + msg);
         // Parse the message in the format of "sender: message"
         let [sender, message] = msg.includes(": ") ? msg.split(": ") : ["", msg];
         if (sender == username) {
-            color = "blue";
-            add_message(msg, color);
+            // Ignore messages sent by self
+            return;
         }
         else if (sender) {
             // Decrypt the message
@@ -182,7 +188,7 @@
             add_message(msg, color);
         }
     })
-    
+
     // we'll send the message to the server by emitting a "send" event
     async function send() {
         receiver = Cookies.get("receiver");
@@ -191,17 +197,19 @@
         $("#message").val("");
 
         // Encrypt the message
-        let encryptedMessage = await encryptMessage(message);
+        let encryptedMessage = await encryptMessage(message, Cookies.get("receiver"));
 
         // Send the encrypted message
         socket.emit("send", username, encryptedMessage, room_id);
+        console.log("Sent encrypted message: " + encryptedMessage);
 
-        console.log("Sent encrypted message: " + msg);
+        // Print the original message to the chat box
+        add_message(username + ": " + message, "blue");
     }
 
     // we emit a join room event to the server to join a room
     function join_room() {
-       
+
         let receiver = $("#receiver").val();
 
         // pass in the receiver of our message to the server
@@ -240,8 +248,13 @@
         let box = $("#message_box");
         let child = $(`<p style="color:${color}; margin: 0px;"></p>`).text(message);
         box.append(child);
+
+        // Update history
+        encryptMessage(message, username).then((encryptedMessage) => {
+            socket.emit("store_history", username, encryptedMessage);
+        });
     }
-    
+
     // Create a post request to the server to add a friend
     async function addFriend() {
         let new_friend = $("#new_friend_username").val();
@@ -299,9 +312,9 @@
         return key;
     }
 
-    async function encryptMessage(message) {
+    async function encryptMessage(message, receiver) {
         // Get the public key of the receiver
-        const publicKeyBase64 = getPublicKey(Cookies.get("receiver"));
+        const publicKeyBase64 = getPublicKey(receiver);
         // Convert base64 encoded public key to an ArrayBuffer
         const publicKeyData = window.atob(publicKeyBase64);
         const publicKeyBuffer = new Uint8Array(publicKeyData.length);
@@ -315,7 +328,7 @@
             publicKeyBuffer,
             {
                 name: "RSA-OAEP",
-                hash: {name: "SHA-256"},
+                hash: { name: "SHA-256" },
             },
             true,
             ["encrypt"]
@@ -327,7 +340,7 @@
 
         // Encrypt the message
         const encrypted = await window.crypto.subtle.encrypt(
-            {name: "RSA-OAEP"},
+            { name: "RSA-OAEP" },
             publicKey,
             messageBuffer
         );
@@ -348,7 +361,7 @@
             privateKeyBuffer,
             {
                 name: "RSA-PSS",
-                hash: {name: "SHA-256"},
+                hash: { name: "SHA-256" },
             },
             true,
             ["sign"]
@@ -371,7 +384,8 @@
 
     async function decryptMessage(sender, encryptedMessageBase64) {
         // Split the encrypted message and signature
-        const [encryptedMessage, signature] = encryptedMessageBase64.split(".");
+        const [encryptedMessage, signature] = encryptedMessageBase64.includes(".") ? 
+        encryptedMessageBase64.split(".") : [encryptedMessageBase64, ""];
 
         // Get the private key from local storage
         const privateKeyBase64 = localStorage.getItem(username);
@@ -388,7 +402,7 @@
             privateKeyBuffer,
             {
                 name: "RSA-OAEP",
-                hash: {name: "SHA-256"},
+                hash: { name: "SHA-256" },
             },
             true,
             ["decrypt"]
@@ -403,7 +417,7 @@
 
         // Decrypt the message
         const decrypted = await window.crypto.subtle.decrypt(
-            {name: "RSA-OAEP"},
+            { name: "RSA-OAEP" },
             privateKey,
             encryptedBuffer
         );
@@ -411,6 +425,10 @@
         // Convert decrypted data to a string
         const decoder = new TextDecoder();
         const decryptedMessage = decoder.decode(decrypted);
+
+        if (!signature) {
+            return decryptedMessage;
+        }
 
         // Verify the signature
         const publicKeyBase64 = getPublicKey(sender);
@@ -425,7 +443,7 @@
             publicKeyBuffer,
             {
                 name: "RSA-PSS",
-                hash: {name: "SHA-256"},
+                hash: { name: "SHA-256" },
             },
             true,
             ["verify"]
@@ -451,6 +469,21 @@
             return "Message could not be verified";
         }
         return decryptedMessage;
+    }
+
+    // Get the chat history from the server
+    function getHistory() {
+        let getHistoryURL = "{{ url_for('get_history') }}";
+        axios.post(getHistoryURL, {
+            username: username
+        }).then((res) => {
+            let history = res.data;
+            for (let message of history) {
+                decryptMessage(username, message).then((decryptedMessage) => {
+                    add_message(decryptedMessage, "gray");
+                });
+            }
+        });
     }
 </script>
 {% endblock %}

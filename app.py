@@ -117,6 +117,11 @@ def process_friend_request():
 
     return db.process_friend(username, friend, accept)
 
+@app.route("/home/history", methods=["POST"])
+def get_history():
+    username = request.json.get("username")
+    return db.get_history(username)
+
 
 if __name__ == '__main__':
     socketio.run(app)

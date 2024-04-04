@@ -8,15 +8,6 @@ To resolve this issue, we can sign the client's public key by a verified CA, or 
 
 The remaining part of the project seems secure logically, and satisfies the requirements.  Only the two communicating parties have the capability to decipher the message, and ensure that the message is not tampered with secretly.
 
-<!-- The given flask socket framework is broadcasting the message to all the clients in the same room. Clients in a room can receive message from multiple clients in the same room. But a client should only send message to one client in the room at a time.
-
-Implementing a secure communication channel between the client and the server using the public key encryption.
-
-Do not use symmetric encryption due to:
-
-1. The requirement of storing the message history on the server. We have to store every symmetric key to decrypt the message history. In practice, The key is nomally discarded after the session ends.
-2. The given flask socket framework is broadcasting the message to all the clients in the same room, making the process of sharing the symmetric key between the clients difficult. -->
-
 ## Timeline
 
 ### 4/1
