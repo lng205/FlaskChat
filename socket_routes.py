@@ -103,10 +103,6 @@ def leave(username, room_id):
     leave_room(room_id)
     room.leave_room(username)
 
-@socketio.on("get_key")
-def get_key(username):
-    return db.get_key(username)
-
 @socketio.on("store_history")
 def store_history(user, message):
     return db.store_history(user, message)

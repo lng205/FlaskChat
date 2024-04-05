@@ -153,6 +153,10 @@ def verify_token(token):
     except Exception:
         return False
 
+@app.route("/key")
+def get_key():
+    username = request.args.get("username")
+    return db.get_key(username)
 
 if __name__ == '__main__':
     socketio.run(app, ssl_context=('localhost.crt', 'localhost.key'), debug=True)

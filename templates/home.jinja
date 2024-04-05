@@ -241,6 +241,11 @@
             $("#input_box").show();
         });
         Cookies.set("receiver", receiver);
+        // Fetch the receiver's public key from the server
+        const url = "{{ url_for('get_key') }}" + "?username=" + receiver;
+        axios.get(url).then((res) => {
+            localStorage.setItem(receiver + "_pub", res.data);
+        });
     }
 
     // function when the user clicks on "Leave Room"
@@ -301,25 +306,10 @@
         join_room();
     }
 
-    // fetch a public key and store it in local storage
-    function getPublicKey(username) {
-        let key = localStorage.getItem(username + "_pub");
-        if (!key) {
-            socket.emit("get_key", username, (res) => {
-                if (res == "error") {
-                    alert("User does not exist");
-                    return;
-                }
-                localStorage.setItem(username + "_pub", res);
-                key = res;
-            });
-        }
-        return key;
-    }
 
     async function encryptMessage(receiver, message) {
         // Get the public key of the receiver
-        const publicKeyBase64 = await getPublicKey(receiver);
+        const publicKeyBase64 = localStorage.getItem(receiver + "_pub");
         // Convert base64 encoded public key to an ArrayBuffer
         const publicKeyData = window.atob(publicKeyBase64);
         const publicKeyBuffer = new Uint8Array(publicKeyData.length);
@@ -439,7 +429,7 @@
         }
 
         // Verify the signature
-        const publicKeyBase64 = await getPublicKey(sender);
+        const publicKeyBase64 = localStorage.getItem(sender + "_pub");
         const publicKeyData = window.atob(publicKeyBase64);
         const publicKeyBuffer = new Uint8Array(publicKeyData.length);
         for (let i = 0; i < publicKeyData.length; i++) {
