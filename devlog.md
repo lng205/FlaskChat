@@ -10,9 +10,20 @@ The remaining part of the project seems secure logically, and satisfies the requ
 
 Currnet Bugs:
 
-1. User's first message can not be sent, and user have to send the first message to be able to receive messages.
-2. History's order may change
-3. Scenarios where there are multiple users in the same room not tested
+1. History's order may change
+2. Scenarios where there are multiple users in the same room not tested
+
+## Designs
+
+### Token
+
+The purpose of the token is to verify that the current user is indeed the individual who initially logged in, ensuring that the server processes requests solely from authenticated users.
+
+We utilize PyJWT to create the token, incorporating the user's username and an expiration time. Upon login, this token is saved in the client's cookie and accompanies each request sent to the server.
+
+Although the requirements mandate authentication for all requests, we selectively authenticate only those involving user-specific actions. Requests for public keys or encrypted history are not authenticated. Since all messages in the chat room are encrypted, the server is unaware of their content and does not require user identification for message transmission.
+
+However, should the need arise to authenticate additional requests, we can effortlessly integrate the authentication code into the relevant view function.
 
 ## Timeline
 
@@ -40,3 +51,8 @@ Currnet Bugs:
 
 - 9:00 - 12:00: 实现加密消息
 - 15:00 - 18:00: 实现解密接收，实现加密消息记录，实现HTTPS，实现token验证
+
+### 4/5
+
+- 9:00 - 12:00: 修复bug，测试
+- 15:00 - 18:00: 重构异步JS代码，修复首次发送消息失败的bug

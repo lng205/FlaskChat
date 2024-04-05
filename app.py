@@ -9,7 +9,6 @@ from flask_socketio import SocketIO
 import db
 import secrets
 import bcrypt
-import jwt, datetime
 
 # import logging
 
@@ -25,6 +24,8 @@ socketio = SocketIO(app)
 
 # don't remove this!!
 import socket_routes
+
+from mytoken import create_token, verify_token
 
 # index page
 @app.route("/")
@@ -52,15 +53,11 @@ def login_user():
     if not bcrypt.checkpw(password, stored_hashed_password):# 使用检查输入的是否与hash匹配
         return "Error: Password does not match!"
 
-    # Generate token
-    token = jwt.encode({
-        'user': username,
-        'exp': datetime.datetime.now(datetime.UTC) + datetime.timedelta(hours=24)
-    }, app.config['SECRET_KEY'], algorithm="HS256")
-
     # Instead of returning a URL, return a redirect response and set the cookie
     response = make_response(url_for('home', username=username))
-    response.set_cookie('auth_token', token, httponly=True, samesite='Lax')
+    response.set_cookie(
+        "auth_token", create_token(username), httponly=True, samesite="Lax"
+    )
 
     return response
 
@@ -87,7 +84,13 @@ def signup_user():
 
     db.insert_user(username, hashed_password, public_key)
 
-    return url_for('home', username=username)
+    # Instead of returning a URL, return a redirect response and set the cookie
+    response = make_response(url_for('home', username=username))
+    response.set_cookie(
+        "auth_token", create_token(username), httponly=True, samesite="Lax"
+    )
+
+    return response
 
 # handler when a "404" error happens
 @app.errorhandler(404)
@@ -97,37 +100,36 @@ def page_not_found(_):
 # home page, where the messaging app is
 @app.route("/home")
 def home():
-    token = request.cookies.get('auth_token')
-    if token is None or not verify_token(token):
-        abort(404)
     if request.args.get("username") is None:
         abort(404)
     username = request.args.get("username")
     if db.get_user(username) is None:
         abort(404)
+
+    # User can OLNY access their own home page
+    token = request.cookies.get('auth_token')
+    if token is None or not verify_token(token, username):
+        abort(401)
     friends, pending_friends = db.get_friends(username)
     return render_template("home.jinja", username=username, friends=friends, pending_friends=pending_friends)
 
 # Handles a post request when the user clicks the add friend button
 @app.route("/home/add", methods=["POST"])
 def add_friend():
-    token = request.cookies.get('auth_token')
-    if token is None or not verify_token(token):
-        abort(404)
     if not request.is_json:
         abort(404)
 
     username = request.json.get("username")
     friend = request.json.get("friend")
 
+    token = request.cookies.get('auth_token')
+    if token is None or not verify_token(token, username):
+        abort(401)
     return db.add_friend(username, friend)
 
 # Handles a post request when the user clicks the accept friend button
 @app.route("/home/accept", methods=["POST"])
 def process_friend_request():
-    token = request.cookies.get('auth_token')
-    if token is None or not verify_token(token):
-        abort(404)
     if not request.is_json:
         abort(404)
 
@@ -135,28 +137,18 @@ def process_friend_request():
     friend = request.json.get("friend")
     accept = request.json.get("accept")
 
+    token = request.cookies.get('auth_token')
+    if token is None or not verify_token(token, username):
+        abort(401)
     return db.process_friend(username, friend, accept)
 
-@app.route("/home/history", methods=["POST"])
+@app.route("/home/history")
 def get_history():
-    token = request.cookies.get('auth_token')
-    if token is None or not verify_token(token):
-        abort(404)
-    username = request.json.get("username")
-    return db.get_history(username)
-
-
-def verify_token(token):
-    try:
-        jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
-        return True
-    except Exception:
-        return False
+    return db.get_history(request.cookies.get('username'))
 
 @app.route("/key")
 def get_key():
-    username = request.args.get("username")
-    return db.get_key(username)
+    return db.get_key(request.args.get("keyof"))
 
 if __name__ == '__main__':
     socketio.run(app, ssl_context=('localhost.crt', 'localhost.key'), debug=True)

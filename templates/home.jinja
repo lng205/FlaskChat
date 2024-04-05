@@ -242,7 +242,7 @@
         });
         Cookies.set("receiver", receiver);
         // Fetch the receiver's public key from the server
-        const url = "{{ url_for('get_key') }}" + "?username=" + receiver;
+        const url = "{{ url_for('get_key') }}" + "?keyof=" + receiver;
         axios.get(url).then((res) => {
             localStorage.setItem(receiver + "_pub", res.data);
         });
@@ -471,10 +471,8 @@
 
     // Get the chat history from the server
     function getHistory() {
-        let getHistoryURL = "{{ url_for('get_history') }}";
-        axios.post(getHistoryURL, {
-            username: username
-        }).then((res) => {
+        const getHistoryURL = "{{ url_for('get_history') }}";
+        axios.get(getHistoryURL).then((res) => {
             let history = res.data;
             for (let message of history) {
                 decryptMessage(username, message).then((decryptedMessage) => {
