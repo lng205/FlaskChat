@@ -70,3 +70,14 @@ def get_friends(username: str):
 def get_key(username: str):
     with Session(engine) as session:
         return session.get(User, username).public_key
+
+def store_history(user, message):
+    with Session(engine) as session:
+        user = session.get(User, user)
+        user.messages.append(Message(message=message, username=user.username))
+        session.commit()
+
+def get_history(username: str):
+    with Session(engine) as session:
+        user = session.get(User, username)
+        return [message.message for message in user.messages]

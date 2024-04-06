@@ -109,5 +109,9 @@ def process_friend_request():
 def get_key():
     return db.get_key(request.args.get("keyof"))
 
+@app.route("/home/history")
+def get_history():
+    return db.get_history(request.cookies.get('username'))
+
 if __name__ == '__main__':
     socketio.run(app)

@@ -40,3 +40,18 @@ We opted against hybrid encryption, finding asymmetric encryption sufficiently e
 4. Encryption and decryption of messages.
 5. Signing and verification of messages.
 6. Display of messages in the chat window.
+
+### History
+
+The history feature is crafted to archive chat conversations in a database, ensuring the server cannot decipher the messages. Although utilizing users' passwords as the encryption key is a logical approach, we opt for the user's public key for encryption. This choice stems from several key factors:
+
+1. The user's original password is transmitted to the server during registration and login.
+2. The incoming messages are already secured with the user's public key, making the encryption of outgoing messages with the user's public key a coherent strategy.
+
+**Implementation Details**:
+
+1. Creation of a relational database table for chat conversations.
+2. Archiving and fetching chat conversations from the database.
+3. Encrypting outgoing messages using the user's public key.
+4. Refreshing the history upon sending and receiving messages.
+5. Displaying the chat history upon entering a chat session.

@@ -124,6 +124,7 @@
         $("#chat_box").hide();
         $("#input_box").show();
         room_id = parseInt(Cookies.get("room_id"));
+        getHistory();
     })
     
     // Here's the Socket IO part of the code
@@ -149,6 +150,8 @@
             decryptMessage(sender, message).then((decryptedMessage) => {
                 add_message(sender + ": " + decryptedMessage, color);
             });
+            // Update history
+            socket.emit("store_history", username, msg);
         }
         else {
             add_message(msg, color);
@@ -167,8 +170,12 @@
         console.log("Sent encrypted message: " + encryptedMessage);
 
         // Print the original message to the chat box
-        const display = username + ": " + message;
-        add_message(display, "blue");
+        add_message(username + ": " + message, "blue");
+
+        // Update history
+        encryptMessage(username, message).then((encryptedMessage) => {
+            socket.emit("store_history", username, username + ": " + encryptedMessage);
+        });
     } 
 
     // we emit a join room event to the server to join a room
@@ -193,6 +200,7 @@
             // now we'll show the input box, so the user can input their message
             $("#chat_box").hide();
             $("#input_box").show();
+            getHistory();
         });
      
         Cookies.set("receiver", receiver);
@@ -311,6 +319,19 @@ async function decryptMessage(sender, encryptedMessageBase64) {
     if (!verified) return "Message could not be verified";
 
     return decryptedMessage;
+}
+
+// Get the chat history from the server
+async function getHistory() {
+    const getHistoryURL = "{{ url_for('get_history') }}";
+    const res = await axios.get(getHistoryURL);
+    const history = res.data;
+    for (let msg of history) {
+        // Parse the message in the format of "sender: message"
+        let [sender, message] = msg.split(": ");
+        let decryptedMessage = await decryptMessage(sender, message);
+        add_message(sender + ": " + decryptedMessage, "grey");
+    }
 }
 </script>
 {% endblock %}
