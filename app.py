@@ -4,11 +4,13 @@ this is where you'll find all of the get/post request handlers
 the socket event handlers are inside of socket_routes.py
 '''
 
-from flask import Flask, render_template, request, abort, url_for
+from flask import Flask, render_template, request, abort, url_for, make_response
 from flask_socketio import SocketIO
 import db
 import secrets
 import bcrypt
+import jwt
+import datetime
 
 # import logging
 
@@ -51,7 +53,13 @@ def login_user():
     if not bcrypt.checkpw(password.encode(), user.password):
         return "Error: Password does not match!"
 
-    return url_for('home', username=request.json.get("username"))
+    # Instead of returning a URL, return a redirect response and set the cookie
+    response = make_response(url_for('home', username=username))
+    response.set_cookie(
+        "auth_token", create_token(username), httponly=True, samesite="Lax"
+    )
+
+    return response
 
 # handles a get request to the signup page
 @app.route("/signup")
@@ -72,7 +80,13 @@ def signup_user():
 
     if db.get_user(username) is None:
         db.insert_user(username, password, public_key)
-        return url_for('home', username=username)
+        response = make_response(url_for('home', username=username))
+        response.set_cookie(
+            "auth_token", create_token(username), httponly=True, samesite="Lax"
+        )
+
+        return response
+
     return "Error: User already exists!"
 
 # handler when a "404" error happens
@@ -87,6 +101,12 @@ def home():
     if username is None:
         abort(404)
     friends, pending_friends = db.get_friends(username)
+
+    # User can OLNY access their own home page
+    token = request.cookies.get('auth_token')
+    if token is None or not verify_token(token, username):
+        abort(401)
+
     return render_template(
         "home.jinja",
         username=username,
@@ -99,6 +119,11 @@ def home():
 def add_friend():
     username = request.json.get("username")
     friend = request.json.get("friend")
+
+    token = request.cookies.get('auth_token')
+    if token is None or not verify_token(token, username):
+        abort(401)
+
     return db.add_friend(username, friend)
 
 # handler of processing friend requests
@@ -107,6 +132,11 @@ def process_friend_request():
     username = request.json.get("username")
     friend = request.json.get("friend")
     accept = request.json.get("accept")
+
+    token = request.cookies.get('auth_token')
+    if token is None or not verify_token(token, username):
+        abort(401)
+
     return db.process_friend_request(username, friend, accept)
 
 @app.route("/key")
@@ -116,6 +146,25 @@ def get_key():
 @app.route("/home/history")
 def get_history():
     return db.get_history(request.cookies.get('username'))
+
+def create_token(username):
+    return jwt.encode(
+        {
+            "user": username,
+            "exp": datetime.datetime.now(datetime.UTC) + datetime.timedelta(hours=24),
+        },
+        app.config["SECRET_KEY"],
+        algorithm="HS256",
+    )
+
+def verify_token(token, username):
+    try:
+        return (
+            username
+            == jwt.decode(token, app.config["SECRET_KEY"], algorithms=["HS256"])["user"]
+        )
+    except Exception:
+        return False
 
 if __name__ == '__main__':
     app.run(ssl_context=('localhost.crt', 'localhost.key'))
