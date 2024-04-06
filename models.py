@@ -60,7 +60,7 @@ class User(Base):
         primaryjoin=username == PendingFriendRequest.user1,
         secondaryjoin=username == PendingFriendRequest.user2,
     )
-    messages: Mapped[List[Message]] = relationship("Message")
+    messages: Mapped[List[Message]] = relationship("Message", order_by=Message.id)
     
 
 # stateful counter used to generate the room id
