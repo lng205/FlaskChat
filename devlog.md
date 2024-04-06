@@ -32,6 +32,8 @@ In this project, we assume the server's reliability in transmitting public keys.
 
 We opted against hybrid encryption, finding asymmetric encryption sufficiently efficient for real-time text chat on contemporary computers, with no noticeable delay in our encryption and decryption tests.
 
+The encryption algorithm used is RSA-OAEP, and the signing algorithm is RSA-PSS.
+
 **Implemetation Details**:
 
 1. Generation of RSA key pairs upon registration.
@@ -55,3 +57,7 @@ The history feature is crafted to archive chat conversations in a database, ensu
 3. Encrypting outgoing messages using the user's public key.
 4. Refreshing the history upon sending and receiving messages.
 5. Displaying the chat history upon entering a chat session.
+
+### Password
+
+The password is hashed with salt using the bcrypt library. The salt is stored alongside the hashed password.

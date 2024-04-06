@@ -8,6 +8,7 @@ from flask import Flask, render_template, request, abort, url_for
 from flask_socketio import SocketIO
 import db
 import secrets
+import bcrypt
 
 # import logging
 
@@ -47,7 +48,7 @@ def login_user():
     if user is None:
         return "Error: User does not exist!"
 
-    if user.password != password:
+    if not bcrypt.checkpw(password.encode(), user.password):
         return "Error: Password does not match!"
 
     return url_for('home', username=request.json.get("username"))
@@ -65,6 +66,9 @@ def signup_user():
     username = request.json.get("username")
     password = request.json.get("password")
     public_key = request.json.get("publicKey")
+
+    salt = bcrypt.gensalt()
+    password = bcrypt.hashpw(password.encode(), salt)
 
     if db.get_user(username) is None:
         db.insert_user(username, password, public_key)
