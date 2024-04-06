@@ -8,10 +8,7 @@ To resolve this issue, we can sign the client's public key by a verified CA, or 
 
 The remaining part of the project seems secure logically, and satisfies the requirements.  Only the two communicating parties have the capability to decipher the message, and ensure that the message is not tampered with secretly.
 
-Currnet Bugs:
-
-1. History's order may change
-2. Scenarios where there are multiple users in the same room not tested
+Scenarios where there are multiple users in the same room not tested
 
 ## Designs
 
@@ -56,3 +53,8 @@ However, should the need arise to authenticate additional requests, we can effor
 
 - 9:00 - 12:00: 修复bug，测试
 - 15:00 - 18:00: 重构异步JS代码，修复首次发送消息失败的bug
+
+### 4/6
+
+- 11:00 - 15:00: 开始从初始框架开始重新复盘，重写代码；整理提交树，将每个功能所做的代码改动合并为一次提交；优化代码结构，去除冗余；重写文档，记录设计中的考量与思路；完成对好友和消息加密功能的复盘和重写
+- 16:00 - 18:00: 修复历史记录乱序的bug；完成对历史记录、密码存储、HTTPS、Token验证功能的复盘和重写
