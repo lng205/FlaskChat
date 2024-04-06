@@ -118,4 +118,4 @@ def get_history():
     return db.get_history(request.cookies.get('username'))
 
 if __name__ == '__main__':
-    socketio.run(app)
+    app.run(ssl_context=('localhost.crt', 'localhost.key'))

@@ -61,3 +61,38 @@ The history feature is crafted to archive chat conversations in a database, ensu
 ### Password
 
 The password is hashed with salt using the bcrypt library. The salt is stored alongside the hashed password.
+
+### HTTPS
+
+To reduce browser warnings when using a self-signed certificate for `localhost` (127.0.0.1), we need to ensure that the certificate includes the correct Common Name (CN) or Subject Alternative Name (SAN) for `localhost` and possibly include other relevant fields. Modern browsers and clients rely heavily on the SAN field, as the CN field is deprecated for this purpose in many contexts.
+
+Following are the steps to generate a self-signed certificate for `localhost` using OpenSSL:
+
+#### Step 1: Create a Configuration File for OpenSSL
+
+Create a new file named `localhost.cnf`.
+
+This configuration includes both a DNS entry and an IP entry for `localhost` and `127.0.0.1`, respectively.
+
+#### Step 2: Generate the Self-Signed Certificate with SAN
+
+Using the configuration file created in Step 1, generate a new self-signed certificate and private key by running:
+
+```bash
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout localhost.key -out localhost.crt -config localhost.cnf -extensions 'v3_req'
+```
+
+#### Step 3: Configure Flask to Use the Certificate and Key
+
+Change the flask app's `app.run()` method to include the `ssl_context` parameter:
+
+```python
+if __name__ == '__main__':
+    app.run(ssl_context=('localhost.crt', 'localhost.key'))
+```
+
+Use `python app.py` to run the Flask app.
+
+#### Step 4: Add the Certificate to trusted certificates
+
+This can be done via the settings of the browser or the operating system. The certificate should be added to the trusted root certificate authorities.
