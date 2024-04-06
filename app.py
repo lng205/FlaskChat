@@ -64,9 +64,10 @@ def signup_user():
         abort(404)
     username = request.json.get("username")
     password = request.json.get("password")
+    public_key = request.json.get("publicKey")
 
     if db.get_user(username) is None:
-        db.insert_user(username, password)
+        db.insert_user(username, password, public_key)
         return url_for('home', username=username)
     return "Error: User already exists!"
 
@@ -104,6 +105,9 @@ def process_friend_request():
     accept = request.json.get("accept")
     return db.process_friend_request(username, friend, accept)
 
+@app.route("/key")
+def get_key():
+    return db.get_key(request.args.get("keyof"))
 
 if __name__ == '__main__':
     socketio.run(app)
