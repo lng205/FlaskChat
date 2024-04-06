@@ -78,10 +78,31 @@ def page_not_found(_):
 # home page, where the messaging app is
 @app.route("/home")
 def home():
-    if request.args.get("username") is None:
+    username = request.args.get("username")
+    if username is None:
         abort(404)
-    return render_template("home.jinja", username=request.args.get("username"))
+    friends, pending_friends = db.get_friends(username)
+    return render_template(
+        "home.jinja",
+        username=username,
+        friends=friends,
+        pending_friends=pending_friends,
+    )
 
+# handler of friend requests
+@app.route("/home/add", methods=["POST"])
+def add_friend():
+    username = request.json.get("username")
+    friend = request.json.get("friend")
+    return db.add_friend(username, friend)
+
+# handler of processing friend requests
+@app.route("/home/process", methods=["POST"])
+def process_friend_request():
+    username = request.json.get("username")
+    friend = request.json.get("friend")
+    accept = request.json.get("accept")
+    return db.process_friend_request(username, friend, accept)
 
 
 if __name__ == '__main__':

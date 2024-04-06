@@ -29,7 +29,7 @@
 <!--Navbar, you'll see the username here-->
 <nav style="border-bottom: 1px solid black;">
     <ol style="float: right">
-        <li style="display:inline-block">Username:  {{ username }} </li>
+        <li style="display:inline-block">Username: {{ username }} </li>
     </ol>
 </nav>
 
@@ -56,6 +56,38 @@
         <input id="message" placeholder="message">
         <button onclick="send()">Send</button>
         <button onclick="leave()">Leave Room</button>
+    </section>
+
+    <!-- Friend interactions section -->
+    <section>
+        <!-- View current friends -->
+        <div>
+            <h2>Current Friends</h2>
+            <ul>
+                {% for friend in friends %}
+                    <li onclick="startChatWith('{{ friend }}')">{{ friend }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- View pending friend requests -->
+        <div>
+            <h2>Pending Friend Requests</h2>
+            <ul>
+                {% for friend in pending_friends %}
+                    <li>{{ friend }}</li>
+                    <button onclick="processFriendRequest('{{ friend }}', true)">Confirm</button>
+                    <button onclick="processFriendRequest('{{ friend }}', false)">Reject</button>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Add new friends -->
+        <div>
+            <h2>Add New Friend</h2>
+            <input id="new_friend_username" placeholder="Enter username">
+            <button onclick="addFriend()">Add Friend</button>
+        </div>
     </section>
 </main>
 
@@ -158,5 +190,43 @@
         box.append(child);
     }
     
+    // Create a post request to the server to add a friend
+    function addFriend() {
+        const new_friend = $("#new_friend_username").val();
+        const addFriendURL = "{{ url_for('add_friend') }}";
+        axios.post(addFriendURL, {
+            username: username,
+            friend: new_friend
+        }).then((res) => {
+            if (res.data == "Success") {
+                location.reload();
+            } else {
+                alert(res.data);
+            }
+        });
+    }
+
+    // Create a post request process a friend request
+    function processFriendRequest(friend, accept) {
+        const confirmFriendURL = "{{ url_for('process_friend_request') }}";
+        axios.post(confirmFriendURL, {
+            username: username,
+            friend: friend,
+            accept: accept
+        }).then((res) => {
+            if (res.data == "Success") {
+                location.reload();
+            } else {
+                alert(res.data);
+            }
+        });
+    }
+
+    function startChatWith(friend) {
+        // Set the receiver input to the friend's name
+        $("#receiver").val(friend);
+        // Directly call join_room to start the chat
+        join_room();
+    }
 </script>
 {% endblock %}

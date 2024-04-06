@@ -32,3 +32,37 @@ def insert_user(username: str, password: str):
 def get_user(username: str):
     with Session(engine) as session:
         return session.get(User, username)
+
+def add_friend(username: str, friendname: str):
+    with Session(engine) as session:
+        user = session.get(User, username)
+        friend = session.get(User, friendname)
+        if friend is None or user is None:
+            return "Error: User does not exist!"
+        if friend in user.friends:
+            return "Error: User already a friend!"
+        if friend == user:
+            return "Error: Cannot add yourself as a friend!"
+        if friend in user.pending_friends:
+            return "Error: Friend request already sent!"
+        friend.pending_friends.append(user)
+        session.commit()
+        return "Success"
+
+def process_friend_request(username: str, friendname: str, accept: bool):
+    with Session(engine) as session:
+        user = session.get(User, username)
+        friend = session.get(User, friendname)
+        user.pending_friends.remove(friend)
+        if accept:
+            user.friends.append(friend)
+            friend.friends.append(user)
+        session.commit()
+        return "Success"
+
+def get_friends(username: str):
+    with Session(engine) as session:
+        user = session.get(User, username)
+        return [friend.username for friend in user.friends], [
+            friend.username for friend in user.pending_friends
+        ]
