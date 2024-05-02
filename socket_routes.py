@@ -86,7 +86,3 @@ def leave(username, room_id):
     emit("incoming", (f"{username} has left the room.", "red"), to=room_id)
     leave_room(room_id)
     room.leave_room(username)
-
-@socketio.on("store_history")
-def store_history(user, message):
-    return db.store_history(user, message)

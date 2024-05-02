@@ -28,12 +28,6 @@ class PendingFriendRequest(Base):
     user1 = mapped_column(ForeignKey("user.username"), primary_key=True)
     user2 = mapped_column(ForeignKey("user.username"), primary_key=True)
 
-class Message(Base):
-    __tablename__ = "message"
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    username = mapped_column(ForeignKey("user.username"))
-    message: Mapped[str]
-
 # model to store user information
 class User(Base):
     __tablename__ = "user"
@@ -45,7 +39,6 @@ class User(Base):
     # in other words we've mapped the username Python object property to an SQL column of type String 
     username: Mapped[str] = mapped_column(String, primary_key=True)
     password: Mapped[str] = mapped_column(String)
-    public_key: Mapped[str]
 
     friends: Mapped[List["User"]] = relationship(
         "User",
@@ -60,7 +53,6 @@ class User(Base):
         primaryjoin=username == PendingFriendRequest.user1,
         secondaryjoin=username == PendingFriendRequest.user2,
     )
-    messages: Mapped[List[Message]] = relationship("Message", order_by=Message.id)
     
 
 # stateful counter used to generate the room id

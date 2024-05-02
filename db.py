@@ -22,9 +22,9 @@ engine = create_engine("sqlite:///database/main.db", echo=False)
 Base.metadata.create_all(engine)
 
 # inserts a user to the database
-def insert_user(username: str, password: str, public_key: str):
+def insert_user(username: str, password: str):
     with Session(engine) as session:
-        user = User(username=username, password=password, public_key=public_key)
+        user = User(username=username, password=password)
         session.add(user)
         session.commit()
 
@@ -66,18 +66,3 @@ def get_friends(username: str):
         return [friend.username for friend in user.friends], [
             friend.username for friend in user.pending_friends
         ]
-
-def get_key(username: str):
-    with Session(engine) as session:
-        return session.get(User, username).public_key
-
-def store_history(user, message):
-    with Session(engine) as session:
-        user = session.get(User, user)
-        user.messages.append(Message(message=message, username=user.username))
-        session.commit()
-
-def get_history(username: str):
-    with Session(engine) as session:
-        user = session.get(User, username)
-        return [message.message for message in user.messages]

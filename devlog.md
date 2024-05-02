@@ -6,13 +6,11 @@ Certain libraries required by the project lack support in Python 3.12. The proje
 
 ## Design Overview
 
-Our project's development consistently aims to minimize alterations to the existing framework.
-
 ### Friends
 
 The key design of the friends feature is the utilization of SQLAlchemy's ORM framework. We crafted tables for friendships and pending friend requests, employing a many-to-many self-referential relationship schema. This approach streamlines querying and managing friendships. However, given the intricacies of SQLAlchemy 2's syntax, we opted for a unidirectional design for the friendship table.
 
-**Implemetation Details**:
+Further enhancements include:
 
 1. Design of relational database tables for users, friendships, and pending friend requests.
 2. Integration of a user interface to showcase friends and pending friend requests, leveraging Flask's Jinja2 templating engine.

@@ -73,13 +73,12 @@ def signup_user():
         abort(404)
     username = request.json.get("username")
     password = request.json.get("password")
-    public_key = request.json.get("publicKey")
 
     salt = bcrypt.gensalt()
     password = bcrypt.hashpw(password.encode(), salt)
 
     if db.get_user(username) is None:
-        db.insert_user(username, password, public_key)
+        db.insert_user(username, password)
         response = make_response(url_for('home', username=username))
         response.set_cookie(
             "auth_token", create_token(username), httponly=True, samesite="Lax"
@@ -139,13 +138,6 @@ def process_friend_request():
 
     return db.process_friend_request(username, friend, accept)
 
-@app.route("/key")
-def get_key():
-    return db.get_key(request.args.get("keyof"))
-
-@app.route("/home/history")
-def get_history():
-    return db.get_history(request.cookies.get('username'))
 
 def create_token(username):
     return jwt.encode(

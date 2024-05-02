@@ -26,41 +26,15 @@ Sign up page, pretty much the same as login.
         // this function is identical to login(), see login.jinja
         async function signup() {
             let loginURL = "{{ url_for('signup_user') }}";
-            const keyPair = await generateKeyPair();
-            const publicKey = await exportKey(keyPair.publicKey, "spki");
-            const privateKey = await exportKey(keyPair.privateKey, "pkcs8");
             let res = await axios.post(loginURL, {
                 username: $("#username").val(),
-                password: $("#password").val(),
-                publicKey: publicKey,
+                password: $("#password").val()
             });
             if (!isValidURL(res.data)) {
                 alert(res.data);
                 return;
             }
-            // Save the key in local storage
-            window.localStorage.setItem($("#username").val() + "_pub", publicKey);
-            window.localStorage.setItem($("#username").val(), privateKey);
-
             window.open(res.data, "_self")
-        }
-
-        async function generateKeyPair() {
-            return await window.crypto.subtle.generateKey(
-                {
-                    name: "RSA-OAEP",
-                    modulusLength: 2048, // Can be 1024, 2048, or 4096
-                    publicExponent: new Uint8Array([1, 0, 1]),
-                    hash: {name: "SHA-256"},
-                },
-                true, // Whether the key is extractable (i.e., can be used in exportKey)
-                ["encrypt", "decrypt"] // Key usages
-            );
-        }
-        async function exportKey(key, exportmethod) {
-            const exported = await window.crypto.subtle.exportKey(exportmethod, key);
-            const exportedAsBase64 = window.btoa(String.fromCharCode.apply(null, new Uint8Array(exported)));
-            return exportedAsBase64;
         }
     </script>
 {% endblock %}
