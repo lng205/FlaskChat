@@ -27,6 +27,14 @@ socketio = SocketIO(app)
 # don't remove this!!
 import socket_routes
 
+# CSP = "default-src 'self'; script-src 'self' https://trusteddomain.com;"
+CSP = "default-src 'self'; script-src 'self';"
+
+@app.after_request
+def add_security_headers(response):
+    response.headers["Content-Security-Policy"] = CSP
+    return response
+
 # index page
 @app.route("/")
 def index():
@@ -159,4 +167,4 @@ def verify_token(token, username):
         return False
 
 if __name__ == '__main__':
-    app.run(ssl_context=('localhost.crt', 'localhost.key'))
+    socketio.run(app, ssl_context=('localhost.crt', 'localhost.key'), debug=True)
