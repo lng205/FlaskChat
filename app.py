@@ -167,4 +167,4 @@ def verify_token(token, username):
         return False
 
 if __name__ == '__main__':
-    socketio.run(app, ssl_context=('localhost.crt', 'localhost.key'), debug=True)
+    socketio.run(app, ssl_context=('ssl/localhost.crt', 'ssl/localhost.key'), debug=True)
