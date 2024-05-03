@@ -4,7 +4,7 @@ this is where you'll find all of the get/post request handlers
 the socket event handlers are inside of socket_routes.py
 '''
 
-from flask import Flask, render_template, request, abort, url_for, make_response
+from flask import Flask, render_template, request, abort, url_for, jsonify
 from flask_socketio import SocketIO
 import db
 import secrets
@@ -27,7 +27,6 @@ socketio = SocketIO(app)
 # don't remove this!!
 import socket_routes
 
-# CSP = "default-src 'self'; script-src 'self' https://trusteddomain.com;"
 CSP = "default-src 'self'; script-src 'self';"
 
 @app.after_request
@@ -35,66 +34,53 @@ def add_security_headers(response):
     response.headers["Content-Security-Policy"] = CSP
     return response
 
-# index page
 @app.route("/")
 def index():
     return render_template("index.jinja")
 
-# login page
+@app.route("/signup")
+def signup():
+    return render_template("authenticate.jinja", text="Sign up", url=url_for("signup_user"))
+
 @app.route("/login")
 def login():    
-    return render_template("login.jinja")
+    return render_template("authenticate.jinja", text="Login", url=url_for("login_user"))
 
-# handles a post request when the user clicks the log in button
 @app.route("/login/user", methods=["POST"])
 def login_user():
-    if not request.is_json:
-        abort(404)
-
-    username = request.json.get("username")
-    password = request.json.get("password")
+    username = request.form.get("username")
+    password = request.form.get("password")
 
     user =  db.get_user(username)
     if user is None:
-        return "Error: User does not exist!"
+        return jsonify({"error": "User does not exist!"})
 
     if not bcrypt.checkpw(password.encode(), user.password):
-        return "Error: Password does not match!"
+        return jsonify({"error": "Password does not match!"})
 
-    # Instead of returning a URL, return a redirect response and set the cookie
-    response = make_response(url_for('home', username=username))
-    response.set_cookie(
-        "auth_token", create_token(username), httponly=True, samesite="Lax"
-    )
+    return jsonify({
+        "token": create_token(username),
+        "username": username,
+        "redirect": url_for("home", username=username)
+        })
 
-    return response
-
-# handles a get request to the signup page
-@app.route("/signup")
-def signup():
-    return render_template("signup.jinja")
-
-# handles a post request when the user clicks the signup button
 @app.route("/signup/user", methods=["POST"])
 def signup_user():
-    if not request.is_json:
-        abort(404)
-    username = request.json.get("username")
-    password = request.json.get("password")
+    username = request.form.get("username")
+    password = request.form.get("password")
 
     salt = bcrypt.gensalt()
     password = bcrypt.hashpw(password.encode(), salt)
 
-    if db.get_user(username) is None:
-        db.insert_user(username, password)
-        response = make_response(url_for('home', username=username))
-        response.set_cookie(
-            "auth_token", create_token(username), httponly=True, samesite="Lax"
-        )
+    if db.get_user(username):
+        return jsonify({"error": "User already exists!"})
 
-        return response
-
-    return "Error: User already exists!"
+    db.insert_user(username, password)
+    return jsonify({
+        "token": create_token(username),
+        "username": username,
+        "redirect": url_for("home", username=username)
+        })
 
 # handler when a "404" error happens
 @app.errorhandler(404)
@@ -104,15 +90,13 @@ def page_not_found(_):
 # home page, where the messaging app is
 @app.route("/home")
 def home():
-    username = request.args.get("username")
-    if username is None:
-        abort(404)
-    friends, pending_friends = db.get_friends(username)
-
     # User can OLNY access their own home page
+    username = request.args.get("username")
     token = request.cookies.get('auth_token')
     if token is None or not verify_token(token, username):
         abort(401)
+
+    friends, pending_friends = db.get_friends(username)
 
     return render_template(
         "home.jinja",
@@ -124,25 +108,25 @@ def home():
 # handler of friend requests
 @app.route("/home/add", methods=["POST"])
 def add_friend():
-    username = request.json.get("username")
-    friend = request.json.get("friend")
-
+    username = request.cookies.get('username')
     token = request.cookies.get('auth_token')
     if token is None or not verify_token(token, username):
         abort(401)
 
-    return db.add_friend(username, friend)
+    friend = request.form.get("friend")
+    res = db.add_friend(username, friend)
+    return jsonify({"message": res}), 200
 
 # handler of processing friend requests
 @app.route("/home/process", methods=["POST"])
 def process_friend_request():
-    username = request.json.get("username")
-    friend = request.json.get("friend")
-    accept = request.json.get("accept")
-
+    username = request.cookies.get("username")
     token = request.cookies.get('auth_token')
     if token is None or not verify_token(token, username):
         abort(401)
+
+    friend = request.json.get("friend")
+    accept = request.json.get("accept")
 
     return db.process_friend_request(username, friend, accept)
 

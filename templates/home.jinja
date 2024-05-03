@@ -1,70 +1,66 @@
 {% extends 'base.jinja' %}
 {% block content %} 
+<div class="container">
+    <nav class="navbar border-bottom">
+        <div class="container">
+            <a href="{{ url_for('home', username=username) }}" class="navbar-brand">Message App</a>
+        </div>
+    </nav>
+    
+    <div class="row mt-5">
+        <div class="col-8">
+            <div class="container border" id="message_box"></div>
 
-<link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
-
-<!--Navbar, you'll see the username here-->
-<nav class="nav-style">
-    <ol class="ol-style">
-        <li class="li-style">Username: {{ username }}</li>
-    </ol>
-</nav>
-
-<h1>Messaging App </h1>
-
-<main>
-    <!-- The messages are displayed here -->
-    <section id="message_box"></section>
-
-    <!-- These part ideally should be a form element, 
-    but I wrote this code a year ago and I don't want to break anything...-->
-    <section id="chat_box">
-        <p class="text">Chat with: </p>
-        <input id="receiver" placeholder="username">
-        <button id="join_room_button">Chat</button>
-    </section>
-
-    <!-- The (message) input box is set to display: none initially, 
-    this means the input box is "invisible" initially-->
-    <section id="input_box">
-        <p class="text">Message: </p>
-        <input id="message" placeholder="message">
-        <button id="send_button">Send</button>
-        <button id="leave_button">Leave Room</button>
-    </section>
-
-    <!-- Friend interactions section -->
-    <section>
-        <!-- View current friends -->
-        <div>
-            <h2>Current Friends</h2>
-            <ul>
+            <form class="input-group" id="startChatForm">
+                <input id="startChatName" type="text" class="form-control" placeholder="username">
+                <button type="submit" class="btn btn-outline-primary">Chat</button>
+            </form>
+    
+            <form class="input-group d-none" id="messageInputForm">
+                <input type="text" id="message" class="form-control" placeholder="message">
+                <button type="submit" class="btn btn-outline-secondary">Send</button>
+                <button id="leaveButton" class="btn btn-outline-danger">Leave Room</button>
+            </form>
+        </div>
+    
+        <div class="col-4">
+            <div class="mb-4 list-group list-group-flush">
+                <h2>Current Friends</h2>
                 {% for friend in friends %}
-                    <li class="friend_item" name="{{ friend }}">{{ friend }}</li>
+                    <button type="button" class="list-group-item list-group-item-action friend-item" name="{{ friend }}">
+                        {{ friend }}
+                    </button>
                 {% endfor %}
-            </ul>
+            </div>
+    
+            <div class="mb-4">
+                <h2>Pending Friend Requests</h2>
+                <ul class="list-group list-group-flush">
+                    {% for friend in pending_friends %}
+                        <li class="list-group-item d-flex justify-content-between">
+                            {{ friend }}
+                            <div>
+                                <button class="btn btn-success btn-sm accept_button" name="{{ friend }}">Confirm</button>
+                                <button class="btn btn-danger btn-sm reject_button" name="{{ friend }}">Reject</button>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+    
+            <div>
+                <h2>Add New Friend</h2>
+                <div class="alert d-none" id="addFriendAlert"></div>
+                <form class="input-group" id="addFriendForm" action="{{ url_for('add_friend') }}">
+                    <input type="text" name="friend" class="form-control" placeholder="Enter username">
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </form>
+            </div>
         </div>
+    </div>
+</div>
 
-        <!-- View pending friend requests -->
-        <div>
-            <h2>Pending Friend Requests</h2>
-            <ul>
-                {% for friend in pending_friends %}
-                    <li>{{ friend }}</li>
-                    <button class="accept_button" name="{{ friend }}">Confirm</button>
-                    <button class="reject_button" name="{{ friend }}">Reject</button>
-                {% endfor %}
-            </ul>
-        </div>
 
-        <!-- Add new friends -->
-        <div>
-            <h2>Add New Friend</h2>
-            <input id="new_friend_username" placeholder="Enter username">
-            <button id="add_friend_button">Add Friend</button>
-        </div>
-    </section>
-</main>
 <script src="/static/js/libs/socket.io.min.js"></script>
 <script src="/static/js/home.js"></script>
 {% endblock %}
