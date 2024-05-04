@@ -96,13 +96,11 @@ def home():
     if token is None or not verify_token(token, username):
         abort(401)
 
-    friends, pending_friends = db.get_friends(username)
-
     return render_template(
         "home.jinja",
         username=username,
-        friends=friends,
-        pending_friends=pending_friends,
+        friends=db.get_friends(username),
+        pending_friends=db.get_pending_friends(username),
     )
 
 # handler of friend requests

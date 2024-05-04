@@ -63,6 +63,13 @@ def process_friend_request(username: str, friendname: str, accept: bool):
 def get_friends(username: str):
     with Session(engine) as session:
         user = session.get(User, username)
-        return [friend.username for friend in user.friends], [
-            friend.username for friend in user.pending_friends
-        ]
+        if user is None:
+            return []
+        return [friend.username for friend in user.friends]
+
+def get_pending_friends(username: str):
+    with Session(engine) as session:
+        user = session.get(User, username)
+        if user is None:
+            return []
+        return [friend.username for friend in user.pending_friends]
