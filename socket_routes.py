@@ -104,3 +104,21 @@ def leave(username, room_id):
     emit("incoming", (f"{username} has left the room.", "red"), to=room_id)
     leave_room(room_id)
     room.leave_room(username)
+
+@socketio.on("add_friend")
+def add_friend(username, friend):
+    res = db.add_friend(username, friend)
+    emit("add_friend_response", res)
+    emit("friend_change", to=user_sessions[friend])
+
+@socketio.on("handle_friend_request")
+def handle_friend_request(username, friend, accept):
+    db.handle_friend_request(username, friend, accept)
+    emit("friend_change")
+    emit("friend_change", to=user_sessions[friend])
+
+@socketio.on("remove_friend")
+def remove_friend(username, friend):
+    db.remove_friend(username, friend)
+    emit("friend_change")
+    emit("friend_change", to=user_sessions[friend])

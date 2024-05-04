@@ -33,6 +33,20 @@ def get_user(username: str):
     with Session(engine) as session:
         return session.get(User, username)
 
+def get_friends(username: str):
+    with Session(engine) as session:
+        user = session.get(User, username)
+        if user is None:
+            return []
+        return [friend.username for friend in user.friends]
+
+def get_pending_friends(username: str):
+    with Session(engine) as session:
+        user = session.get(User, username)
+        if user is None:
+            return []
+        return [friend.username for friend in user.pending_friends]
+    
 def add_friend(username: str, friendname: str):
     with Session(engine) as session:
         user = session.get(User, username)
@@ -49,7 +63,7 @@ def add_friend(username: str, friendname: str):
         session.commit()
         return "Success!"
 
-def process_friend_request(username: str, friendname: str, accept: bool):
+def handle_friend_request(username: str, friendname: str, accept: bool):
     with Session(engine) as session:
         user = session.get(User, username)
         friend = session.get(User, friendname)
@@ -58,18 +72,11 @@ def process_friend_request(username: str, friendname: str, accept: bool):
             user.friends.append(friend)
             friend.friends.append(user)
         session.commit()
-        return "Success!"
 
-def get_friends(username: str):
+def remove_friend(username: str, friendname: str):
     with Session(engine) as session:
         user = session.get(User, username)
-        if user is None:
-            return []
-        return [friend.username for friend in user.friends]
-
-def get_pending_friends(username: str):
-    with Session(engine) as session:
-        user = session.get(User, username)
-        if user is None:
-            return []
-        return [friend.username for friend in user.pending_friends]
+        friend = session.get(User, friendname)
+        user.friends.remove(friend)
+        friend.friends.remove(user)
+        session.commit()

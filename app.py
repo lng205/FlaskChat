@@ -103,32 +103,6 @@ def home():
         pending_friends=db.get_pending_friends(username),
     )
 
-# handler of friend requests
-@app.route("/home/add", methods=["POST"])
-def add_friend():
-    username = request.cookies.get('username')
-    token = request.cookies.get('auth_token')
-    if token is None or not verify_token(token, username):
-        abort(401)
-
-    friend = request.form.get("friend")
-    res = db.add_friend(username, friend)
-    return jsonify({"message": res}), 200
-
-# handler of processing friend requests
-@app.route("/home/process", methods=["POST"])
-def process_friend_request():
-    username = request.cookies.get("username")
-    token = request.cookies.get('auth_token')
-    if token is None or not verify_token(token, username):
-        abort(401)
-
-    friend = request.json.get("friend")
-    accept = request.json.get("accept")
-
-    return db.process_friend_request(username, friend, accept)
-
-
 def create_token(username):
     return jwt.encode(
         {

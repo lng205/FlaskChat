@@ -7,13 +7,11 @@ $(document).ready(() => {
 
     $('#addFriendForm').submit(handleAddFriend);
     $('#startChatForm').submit(handleStartChat);
+    $('.friend-item').click(handleStartChat);
     $('#messageInputForm').submit(sendMessage);
+    $('.handle-request-button').click(handleFriendRequest);
+    $('.remove-button').click(removeFriend);
     $('#leaveButton').click(leaveChat);
-
-    // Delegate click events for dynamic elements
-    $(document).on('click', '.accept_button', e => processFriendRequest(e.target.name, true));
-    $(document).on('click', '.reject_button', e => processFriendRequest(e.target.name, false));
-    $('.friend-item').click(e => joinRoom(e.target.getAttribute('name')));
 });
 
 // Socket event handlers
@@ -30,24 +28,50 @@ socket.on("status_update", msg => {
     }
 })
 
+socket.on("friend_change", () => window.location.reload());
+
+socket.on("add_friend_response", res => {
+    toggleAlert('#addFriendAlert', res, res === "Success!");
+});
+
 // Form submission handlers
 function handleAddFriend(event) {
     event.preventDefault();
-    axios.post(this.action, new FormData(this))
-        .then(res => toggleAlert('#addFriendAlert', res.data.message, res.data.message === "Success!"))
-        .catch(() => window.location.reload());
+    const input = $('input', this);
+    socket.emit("add_friend", username, input.val());
+    input.val("");
 }
 
 function handleStartChat(event) {
-    event.preventDefault();
-    joinRoom($('#startChatName').val());
+    const nameAttr = $(this).attr('name');
+    if (nameAttr) {
+        startChat(nameAttr);
+    }
+    else {
+        const input = $('input', this);
+        event.preventDefault();
+        startChat(input.val());
+        input.val("");
+    }
 }
 
 function sendMessage(event) {
     event.preventDefault();
-    const message = $('#message').val();
-    socket.emit("send", username, message, room_id);
-    $('#message').val("");
+    const input = $('input', this);
+    socket.emit("send", username, input.val(), room_id);
+    input.val("");
+}
+
+function handleFriendRequest(event) {
+    socket.emit(
+        "handle_friend_request",
+        username,
+        event.target.name,
+        event.target.value
+    )}
+
+function removeFriend(event) {
+    socket.emit("remove_friend", username, event.target.name)
 }
 
 function leaveChat() {
@@ -57,7 +81,7 @@ function leaveChat() {
 }
 
 // Utility functions
-function joinRoom(receiver) {
+function startChat(receiver) {
     socket.emit("join", username, receiver, res => {
         if (typeof res !== "number") {
             alert(res);
@@ -69,11 +93,6 @@ function joinRoom(receiver) {
     });
 }
 
-function processFriendRequest(friend, accept) {
-    axios.post("/home/process", { username, friend, accept })
-        .then(res => res.data === "Success!" ? location.reload() : alert(res.data));
-}
-
 function changeBoxDisplay(isChatStarted) {
     $("#messageInputForm").toggleClass("d-none", !isChatStarted);
     $("#startChatForm").toggleClass("d-none", isChatStarted);
@@ -81,8 +100,8 @@ function changeBoxDisplay(isChatStarted) {
 
 function toggleAlert(selector, message, isSuccess) {
     $(selector)
-    .text(message)
-    .toggleClass('alert-success', isSuccess)
-    .toggleClass('alert-danger', !isSuccess)
-    .removeClass('d-none');
+        .text(message)
+        .toggleClass('alert-success', isSuccess)
+        .toggleClass('alert-danger', !isSuccess)
+        .removeClass('d-none');
 }

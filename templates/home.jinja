@@ -13,12 +13,12 @@
             <div class="container border" id="message_box"></div>
 
             <form class="input-group" id="startChatForm">
-                <input id="startChatName" type="text" class="form-control" placeholder="username">
+                <input type="text" class="form-control" placeholder="username">
                 <button type="submit" class="btn btn-outline-primary">Chat</button>
             </form>
 
             <form class="input-group d-none" id="messageInputForm">
-                <input type="text" id="message" class="form-control" placeholder="message">
+                <input type="text" class="form-control" placeholder="message">
                 <button type="submit" class="btn btn-outline-secondary">Send</button>
                 <button id="leaveButton" class="btn btn-outline-danger">Leave Room</button>
             </form>
@@ -28,10 +28,13 @@
             <h2>Current Friends</h2>
             <ul class="mb-4 ps-0">
                 {% for friend in friends %}
-                <li class="friend-item p-2 rounded" name="{{ friend }}">
-                    <span>●</span>
-                    {{ friend }}
-                </li>
+                <div class="d-flex justify-content-between">
+                    <li class="p-2 flex-grow-1 friend-item rounded" name="{{ friend }}">
+                        <span>●</span>
+                        {{ friend }}
+                    </li>
+                    <button class="btn btn-danger btn-sm remove-button" name="{{ friend }}">Remove</button>
+                </div>
                 {% endfor %}
             </ul>
 
@@ -42,8 +45,8 @@
                     <li class="list-group-item d-flex justify-content-between">
                         {{ friend }}
                         <div>
-                            <button class="btn btn-success btn-sm accept_button" name="{{ friend }}">Confirm</button>
-                            <button class="btn btn-danger btn-sm reject_button" name="{{ friend }}">Reject</button>
+                            <button class="btn btn-success btn-sm handle-request-button" name="{{ friend }}" value="true">Confirm</button>
+                            <button class="btn btn-danger btn-sm handle-request-button" name="{{ friend }}" value="false">Reject</button>
                         </div>
                     </li>
                     {% endfor %}
@@ -53,7 +56,7 @@
             <div>
                 <h2>Add New Friend</h2>
                 <div class="alert d-none" id="addFriendAlert"></div>
-                <form class="input-group" id="addFriendForm" action="{{ url_for('add_friend') }}">
+                <form class="input-group" id="addFriendForm">
                     <input type="text" name="friend" class="form-control" placeholder="Enter username">
                     <button type="submit" class="btn btn-primary">Add</button>
                 </form>
