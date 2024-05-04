@@ -5,7 +5,6 @@ let room_id = parseInt(Cookies.get("room_id"));
 $(document).ready(() => {
     changeBoxDisplay(!!room_id);
 
-    $('#message_box').css('height', '400px');
     $('#addFriendForm').submit(handleAddFriend);
     $('#startChatForm').submit(handleStartChat);
     $('#messageInputForm').submit(sendMessage);
@@ -14,13 +13,22 @@ $(document).ready(() => {
     // Delegate click events for dynamic elements
     $(document).on('click', '.accept_button', e => processFriendRequest(e.target.name, true));
     $(document).on('click', '.reject_button', e => processFriendRequest(e.target.name, false));
-    $('.friend-item').click(e => joinRoom(e.target.name));
+    $('.friend-item').click(e => joinRoom(e.target.getAttribute('name')));
 });
 
 // Socket event handlers
 socket.on("incoming", (msg, color = "black") => {
     $("#message_box").append($("<p class='mb-0'></p>").text(msg).css("color", color));
 });
+
+socket.on("status_update", msg => {
+    if (msg.online) {
+        $(`.friend-item[name="${msg.username}"] span`).css('color', 'green');
+    }
+    else {
+        $(`.friend-item[name="${msg.username}"] span`).css('color', 'red');
+    }
+})
 
 // Form submission handlers
 function handleAddFriend(event) {

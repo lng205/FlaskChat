@@ -18,18 +18,28 @@ import db
 
 room = Room()
 
+user_sessions = {}
+
 # when the client connects to a socket
 # this event is emitted when the io() function is called in JS
 @socketio.on('connect')
 def connect():
     username = request.cookies.get("username")
     room_id = request.cookies.get("room_id")
-    if room_id is None or username is None:
-        return
-    # socket automatically leaves a room on client disconnect
-    # so on client connect, the room needs to be rejoined
-    join_room(int(room_id))
-    emit("incoming", (f"{username} has connected", "green"), to=int(room_id))
+    if room_id and username:
+        join_room(int(room_id))
+        emit("incoming", (f"{username} has connected", "green"), to=int(room_id))
+
+    # Map the username to the socket session id
+    user_sessions[username] = request.sid
+
+    friends = db.get_friends(username)
+    for friend in friends:
+        if friend in user_sessions:
+            # Notify the user that their friend is online
+            emit('status_update', {"username": friend, "online": True}, room=user_sessions[username])
+            # Notify the user's friends that the user is online
+            emit('status_update', {"username": username, "online": True}, room=user_sessions[friend])
 
 # event when client disconnects
 # quite unreliable use sparingly
@@ -37,9 +47,17 @@ def connect():
 def disconnect():
     username = request.cookies.get("username")
     room_id = request.cookies.get("room_id")
-    if room_id is None or username is None:
-        return
-    emit("incoming", (f"{username} has disconnected", "red"), to=int(room_id))
+    if room_id and username:
+        emit("incoming", (f"{username} has disconnected", "red"), to=int(room_id))
+
+    # Remove the user from the user_sessions dictionary
+    user_sessions.pop(username, None)
+
+    # Notify the user's friends that the user is offline
+    friends = db.get_friends(username)
+    for friend in friends:
+        if friend in user_sessions:
+            emit('status_update', {"username": username, "online": False}, room=user_sessions[friend])
 
 # send message event handler
 @socketio.on("send")

@@ -15,3 +15,9 @@ To eliminate all inline JavaScript, we must alter the logic associated with inpu
 ## Bootstrap 5
 
 Bootstrap 5 is a CSS framework that offers a variety of visually appealing designs. Its usage mirrors that of employing a user-defined CSS file: include the framework file and assign classes to the elements. However, mastering it still requires some learning. For instance, Bootstrap’s grid system differs from traditional grids, necessitating an understanding of the box model. Users also need to know which classes to apply to achieve the desired effects.
+
+## Online status
+
+To update the online status of users in time, we utilize WebSockets' connect event. The server would maintain a dict mapping all users to their WebSocket connections. When a user's connection status changes, the server would emit a message to all of the user's friends, updating their online status. The users would also receive their friends' online status when they log in.
+
+In order to provide a better visual experience, we uses dedicated css and js.

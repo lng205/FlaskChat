@@ -1,0 +1,20 @@
+.friend-item {
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    list-style-type: none;
+}
+
+.friend-item:hover {
+    background-color: #f0f0f0; /* Light grey background on hover */
+    color: #007bff; /* Change text color on hover */
+}
+
+#message_box {
+    height: 400px;
+    overflow-y: scroll;
+    overflow-wrap: break-word;
+}
+
+.friend-item span {
+    color: red;
+}
