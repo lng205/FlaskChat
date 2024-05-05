@@ -1,0 +1,44 @@
+{% extends 'base.jinja' %}
+{% block content %}
+<div class="container">
+    <!-- navbar -->
+    <nav class="navbar border-bottom mb-4">
+      <div class="container-fluid ps-0">
+        <a class="navbar-brand" href="{{ url_for('index') }}">Piazza</a>
+        <ul class="nav nav-underline justify-content-end">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('message') }}">Message</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="{{ url_for('post') }}">Post</a>
+          </li>
+          {% if account_type == "admin" %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('admin') }}">admin</a>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+    </nav>
+
+  <!-- title -->
+  <nav class="navbar border-bottom">
+    <div class="container ps-0 align-items-end">
+      <h3>Post</h3>
+      <div>
+        <span>Username: {{ username }}</span>
+        <span class="badge text-bg-secondary">{{ account_type }}</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- write new post -->
+  <div class="mt-5">
+    <label for="postText" class="form-label">Write a new post</label>
+    <textarea class="form-control" id="postText" rows="3"></textarea>
+    <div class="d-flex justify-content-end">
+      <button class="btn btn-primary" id="postSubmitButton">Submit</button>
+    </div>
+  </div>
+</div>
+{% endblock %}

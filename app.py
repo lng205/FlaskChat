@@ -104,7 +104,12 @@ def message():
 
 @app.route("/post")
 def post():
-    pass
+    username = request.cookies.get("username")
+    return render_template(
+        "post.jinja",
+        username=username,
+        account_type=db.get_account_type(username)
+    )
 
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
