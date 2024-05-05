@@ -38,7 +38,7 @@ def connect():
     user_sessions[username] = request.sid
 
     friends = db.get_friends(username)
-    for friend in friends:
+    for friend, _ in friends:
         if friend in user_sessions:
             # Notify the user that their friend is online
             emit('status_update', {"username": friend, "online": True}, room=user_sessions[username])
@@ -59,7 +59,7 @@ def disconnect():
 
     # Notify the user's friends that the user is offline
     friends = db.get_friends(username)
-    for friend in friends:
+    for friend, _ in friends:
         if friend in user_sessions:
             emit('status_update', {"username": username, "online": False}, room=user_sessions[friend])
 
@@ -124,7 +124,7 @@ def add_friend(username, friend):
 
 @socketio.on("handle_friend_request")
 def handle_friend_request(username, friend, accept):
-    db.handle_friend_request(username, friend, accept)
+    db.handle_friend_request(username, friend, accept == "true")
     emit("friend_change")
     emit("friend_change", to=user_sessions[friend])
 

@@ -21,10 +21,10 @@ socket.on("incoming", (msg, color = "black") => {
 
 socket.on("status_update", msg => {
     if (msg.online) {
-        $(`.friend-item[name="${msg.username}"] span`).css('color', 'green');
+        $(`.friend-item[name="${msg.username}"] .online-status`).css('color', 'green');
     }
     else {
-        $(`.friend-item[name="${msg.username}"] span`).css('color', 'red');
+        $(`.friend-item[name="${msg.username}"] .online-status`).css('color', 'red');
     }
 })
 

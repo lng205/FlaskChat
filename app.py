@@ -97,6 +97,7 @@ def message():
     return render_template(
         "message.jinja",
         username=username,
+        account_type=db.get_account_type(username),
         friends=db.get_friends(username),
         pending_friends=db.get_pending_friends(username),
     )
@@ -104,6 +105,20 @@ def message():
 @app.route("/post")
 def post():
     pass
+
+@app.route("/admin", methods=["GET", "POST"])
+def admin():
+    if request.method == "GET":
+        token = request.cookies.get('auth_token')
+        username = request.cookies.get("username")
+        if not verify_token(token, username) or not db.is_admin(username):
+            abort(401)
+        return render_template("admin.jinja", userdata=db.get_all_users())
+    else:
+        username = request.json.get("username")
+        account_type = request.json.get("type")
+        msg = db.set_account_type(username, account_type)
+        return jsonify({"msg": msg})
 
 def create_token(username):
     return jwt.encode(

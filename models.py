@@ -37,8 +37,9 @@ class User(Base):
     # and I want this column to be my primary key
     # then accessing john.username -> will give me some data of type string
     # in other words we've mapped the username Python object property to an SQL column of type String 
-    username: Mapped[str] = mapped_column(String, primary_key=True)
-    password: Mapped[str] = mapped_column(String)
+    username: Mapped[str] = mapped_column(primary_key=True)
+    password: Mapped[str]
+    account_type: Mapped[str] = mapped_column(default="student")
 
     friends: Mapped[List["User"]] = relationship(
         "User",

@@ -38,14 +38,14 @@ def get_friends(username: str):
         user = session.get(User, username)
         if user is None:
             return []
-        return [friend.username for friend in user.friends]
+        return [(friend.username, friend.account_type) for friend in user.friends]
 
 def get_pending_friends(username: str):
     with Session(engine) as session:
         user = session.get(User, username)
         if user is None:
             return []
-        return [friend.username for friend in user.pending_friends]
+        return [(friend.username, friend.account_type) for friend in user.pending_friends]
     
 def add_friend(username: str, friendname: str):
     with Session(engine) as session:
@@ -91,3 +91,25 @@ def get_messages(room_id: int):
     with Session(engine) as session:
         messages = session.scalars(select(Message).where(Message.room_id == room_id))
         return [(message.sender, message.message) for message in messages]
+    
+def is_admin(username: str):
+    with Session(engine) as session:
+        user = session.get(User, username)
+        return user.account_type == "admin" if user else False
+    
+def get_all_users():
+    with Session(engine) as session:
+        users = session.scalars(select(User))
+        return [(user.username, user.account_type) for user in users]
+
+def set_account_type(username: str, account_type: str):
+    with Session(engine) as session:
+        user = session.get(User, username)
+        user.account_type = account_type
+        session.commit()
+        return "Success!"
+    
+def get_account_type(username: str):
+    with Session(engine) as session:
+        user = session.get(User, username)
+        return user.account_type

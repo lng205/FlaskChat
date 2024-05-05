@@ -1,6 +1,7 @@
 {% extends 'base.jinja' %}
 {% block content %}
-<div class="container mt-5">
+<div class="container">
+    <!-- navbar -->
     <ul class="nav nav-underline justify-content-end">
         <li class="nav-item">
             <a class="nav-link" href="{{ url_for('login') }}">Login</a>
@@ -9,7 +10,11 @@
             <a class="nav-link" href="{{ url_for('signup') }}">Signup</a>
         </li>
     </ul>
+
+    <!-- title -->
     <h1>{{ text }}</h1>
+
+    <!-- content -->
     <form class="mt-5" action="{{ url }}">
         <div class="alert alert-danger d-none"></div>
         <div class="form-floating mb-3">
