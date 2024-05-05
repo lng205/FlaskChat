@@ -10,17 +10,17 @@
 
     <div class="row mt-5">
         <div class="col-8">
-            <div class="container border" id="message_box"></div>
+            <div class="container border" id="messageBox"></div>
 
             <form class="input-group" id="startChatForm">
                 <input type="text" class="form-control" placeholder="username">
-                <button type="submit" class="btn btn-outline-primary">Chat</button>
+                <button class="btn btn-outline-primary">Chat</button>
             </form>
 
             <form class="input-group d-none" id="messageInputForm">
                 <input type="text" class="form-control" placeholder="message">
-                <button type="submit" class="btn btn-outline-secondary">Send</button>
-                <button id="leaveButton" class="btn btn-outline-danger">Leave Room</button>
+                <button class="btn btn-outline-secondary">Send</button>
+                <button type="button" id="leaveButton" class="btn btn-outline-danger">Leave Room</button>
             </form>
         </div>
 
@@ -58,7 +58,7 @@
                 <div class="alert d-none" id="addFriendAlert"></div>
                 <form class="input-group" id="addFriendForm">
                     <input type="text" name="friend" class="form-control" placeholder="Enter username">
-                    <button type="submit" class="btn btn-primary">Add</button>
+                    <button class="btn btn-primary">Add</button>
                 </form>
             </div>
         </div>

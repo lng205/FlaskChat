@@ -16,7 +16,7 @@ $(document).ready(() => {
 
 // Socket event handlers
 socket.on("incoming", (msg, color = "black") => {
-    $("#message_box").append($("<p class='mb-0'></p>").text(msg).css("color", color));
+    $("#messageBox").append($("<p class='mb-0'></p>").text(msg).css("color", color));
 });
 
 socket.on("status_update", msg => {

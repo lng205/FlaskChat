@@ -9,7 +9,7 @@
     color: #007bff; /* Change text color on hover */
 }
 
-#message_box {
+#messageBox {
     height: 400px;
     overflow-y: scroll;
     overflow-wrap: break-word;

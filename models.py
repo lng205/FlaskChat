@@ -53,7 +53,14 @@ class User(Base):
         primaryjoin=username == PendingFriendRequest.user1,
         secondaryjoin=username == PendingFriendRequest.user2,
     )
-    
+
+# model to store messages
+class Message(Base):
+    __tablename__ = "message"
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    sender: Mapped[str] = mapped_column(ForeignKey("user.username"))
+    message: Mapped[str]
+    room_id: Mapped[int]
 
 # stateful counter used to generate the room id
 class Counter():

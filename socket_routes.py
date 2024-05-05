@@ -29,6 +29,10 @@ def connect():
     if room_id and username:
         join_room(int(room_id))
         emit("incoming", (f"{username} has connected", "green"), to=int(room_id))
+        # emit message history
+        messages = db.get_messages(room_id)
+        for sender, message in messages:
+            emit("incoming", (f"{sender}: {message}", "grey"))
 
     # Map the username to the socket session id
     user_sessions[username] = request.sid
@@ -63,7 +67,10 @@ def disconnect():
 @socketio.on("send")
 def send(username, message, room_id):
     emit("incoming", (f"{username}: {message}"), to=room_id)
-    
+
+    # save the message to the database
+    db.save_message(username, message, room_id)
+
 # join room event handler
 # sent when the user joins a room
 @socketio.on("join")
@@ -88,6 +95,10 @@ def join(sender_name, receiver_name):
         emit("incoming", (f"{sender_name} has joined the room.", "green"), to=room_id, include_self=False)
         # emit only to the sender
         emit("incoming", (f"{sender_name} has joined the room. Now talking to {receiver_name}.", "green"))
+        # emit message history
+        messages = db.get_messages(room_id)
+        for sender, message in messages:
+            emit("incoming", (f"{sender}: {message}", "grey"))
         return room_id
 
     # if the user isn't inside of any room, 

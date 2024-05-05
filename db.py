@@ -3,7 +3,7 @@ db
 database file, containing all the logic to interface with the sql database
 '''
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 from models import *
 
@@ -80,3 +80,14 @@ def remove_friend(username: str, friendname: str):
         user.friends.remove(friend)
         friend.friends.remove(user)
         session.commit()
+
+def save_message(sender: str, message: str, room_id: int):
+    with Session(engine) as session:
+        message = Message(sender=sender, message=message, room_id=room_id)
+        session.add(message)
+        session.commit()
+
+def get_messages(room_id: int):
+    with Session(engine) as session:
+        messages = session.scalars(select(Message).where(Message.room_id == room_id))
+        return [(message.sender, message.message) for message in messages]
