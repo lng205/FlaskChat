@@ -2,54 +2,54 @@
 {% block content %}
 
 <div class="container">
-    <!-- navbar -->
-    <nav class="navbar border-bottom mb-4">
-        <div class="container-fluid ps-0">
-            <a class="navbar-brand" href="{{ url_for('index') }}">Piazza</a>
-            <ul class="nav nav-underline justify-content-end">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('message') }}">Message</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('post') }}">Post</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="{{ url_for('admin') }}">admin</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
-    
-    <!-- title -->
-    <nav class="navbar border-bottom">
-        <div class="container ps-0">
-            <h3>Admin Page</h3>
-        </div>
-    </nav>
-    
-    <!-- content -->
-    <div class="alert alert-info d-none"></div>
-    <div class="container mt-3">
-        {% for username, account_type in userdata %}
-        <div class="row">
-            <div class="col-6 d-flex align-items-center border rounded">
-                <span class="me-2">{{ username }}</span>
-                <span class="badge text-bg-secondary">{{ account_type }}</span>
-            </div>
-            <div class="col-6">
-                <div class="input-group" name="{{ username }}">
-                    <select class="form-select">
-                        <option value="student">student</option>
-                        <option value="academic">academic</option>
-                        <option value="administrative">administrative</option>
-                        <option value="admin">admin</option>
-                    </select>
-                    <button class="btn btn-outline-secondary" type="button">Change</button>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
+  <!-- navbar -->
+  <nav class="navbar border-bottom mb-4">
+    <div class="container-fluid ps-0">
+      <a class="navbar-brand" href="{{ url_for('index') }}">Piazza</a>
+      <ul class="nav nav-underline justify-content-end">
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('message') }}">Message</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('post') }}">Post</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="{{ url_for('admin') }}">admin</a>
+        </li>
+      </ul>
     </div>
+  </nav>
+
+  <!-- title -->
+  <nav class="navbar border-bottom">
+    <div class="container ps-0">
+      <h3>Admin Page</h3>
+    </div>
+  </nav>
+
+  <!-- content -->
+  <div class="alert alert-info d-none"></div>
+  <div class="container mt-3">
+    {% for username, account_type in userdata %}
+    <div class="row">
+      <div class="col-6 d-flex align-items-center border rounded">
+        <span class="me-2">{{ username }}</span>
+        <span class="badge text-bg-secondary">{{ account_type }}</span>
+      </div>
+      <div class="col-6">
+        <div class="input-group" name="{{ username }}">
+          <select class="form-select">
+            <option value="student">student</option>
+            <option value="academic">academic</option>
+            <option value="administrative">administrative</option>
+            <option value="admin">admin</option>
+          </select>
+          <button class="btn btn-outline-secondary" type="button">Change</button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
 </div>
 <script src="/static/js/admin.js"></script>
 {% endblock %}

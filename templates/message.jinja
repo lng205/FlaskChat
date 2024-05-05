@@ -3,99 +3,99 @@
 <link rel="stylesheet" href="/static/css/home.css">
 
 <div class="container">
-    <!-- navbar -->
-    <nav class="navbar border-bottom mb-4">
-        <div class="container-fluid ps-0">
-            <a class="navbar-brand" href="{{ url_for('index') }}">Piazza</a>
-            <ul class="nav nav-underline justify-content-end">
-                <li class="nav-item">
-                    <a class="nav-link active" href="{{ url_for('message') }}">Message</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('post') }}">Post</a>
-                </li>
-                {% if account_type == "admin" %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('admin') }}">admin</a>
-                </li>
-                {% endif %}
-            </ul>
-        </div>
-    </nav>
-
-    <!-- title -->
-    <nav class="navbar border-bottom">
-        <div class="container ps-0 align-items-end">
-            <h3>Message App</h3>
-            <div>
-                <span class="me-2">Username: {{ username }}</span>
-                <span class="badge text-bg-secondary">{{ account_type }}</span>
-            </div>
-        </div>
-    </nav>
-
-    <!-- content -->
-    <div class="row mt-5">
-        <div class="col-8">
-            <div class="container border" id="messageBox"></div>
-
-            <form class="input-group" id="startChatForm">
-                <input type="text" class="form-control" placeholder="username">
-                <button class="btn btn-outline-primary">Chat</button>
-            </form>
-
-            <form class="input-group d-none" id="messageInputForm">
-                <input type="text" class="form-control" placeholder="message">
-                <button class="btn btn-outline-secondary">Send</button>
-                <button type="button" id="leaveButton" class="btn btn-outline-danger">Leave Room</button>
-            </form>
-        </div>
-
-        <div class="col-4">
-            <h2>Current Friends</h2>
-            <ul class="mb-4 ps-0">
-                {% for friend, account_type in friends %}
-                <div class="d-flex justify-content-between">
-                    <li class="p-2 flex-grow-1 friend-item rounded" name="{{ friend }}">
-                        <span class="online-status">●</span>
-                        {{ friend }}
-                        <span class="badge text-bg-secondary">{{ account_type }}</span>
-                    </li>
-                    <button class="btn btn-danger btn-sm remove-button" name="{{ friend }}">Remove</button>
-                </div>
-                {% endfor %}
-            </ul>
-
-            <div class="mb-4">
-                <h2>Pending Friend Requests</h2>
-                <ul class="list-group list-group-flush">
-                    {% for friend, account_type in pending_friends %}
-                    <li class="list-group-item d-flex justify-content-between">
-                        <div>
-                            {{ friend }}
-                            <span class="badge text-bg-secondary">{{ account_type }}</span>
-                        </div>
-                        <div>
-                            <button class="btn btn-success btn-sm handle-request-button" name="{{ friend }}"
-                                value="true">Confirm</button>
-                            <button class="btn btn-danger btn-sm handle-request-button" name="{{ friend }}"
-                                value="false">Reject</button>
-                        </div>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
-
-            <div>
-                <h2>Add New Friend</h2>
-                <div class="alert d-none" id="addFriendAlert"></div>
-                <form class="input-group" id="addFriendForm">
-                    <input type="text" name="friend" class="form-control" placeholder="Enter username">
-                    <button class="btn btn-primary">Add</button>
-                </form>
-            </div>
-        </div>
+  <!-- navbar -->
+  <nav class="navbar border-bottom mb-4">
+    <div class="container-fluid ps-0">
+      <a class="navbar-brand" href="{{ url_for('index') }}">Piazza</a>
+      <ul class="nav nav-underline justify-content-end">
+        <li class="nav-item">
+          <a class="nav-link active" href="{{ url_for('message') }}">Message</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('post') }}">Post</a>
+        </li>
+        {% if account_type == "admin" %}
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('admin') }}">admin</a>
+        </li>
+        {% endif %}
+      </ul>
     </div>
+  </nav>
+
+  <!-- title -->
+  <nav class="navbar border-bottom">
+    <div class="container ps-0 align-items-end">
+      <h3>Message App</h3>
+      <div>
+        <span>Username: {{ username }}</span>
+        <span class="badge text-bg-secondary">{{ account_type }}</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- content -->
+  <div class="row mt-5">
+    <div class="col-8">
+      <div class="container border" id="messageBox"></div>
+
+      <form class="input-group" id="startChatForm">
+        <input type="text" class="form-control" placeholder="username">
+        <button class="btn btn-outline-primary">Chat</button>
+      </form>
+
+      <form class="input-group d-none" id="messageInputForm">
+        <input type="text" class="form-control" placeholder="message">
+        <button class="btn btn-outline-secondary">Send</button>
+        <button type="button" id="leaveButton" class="btn btn-outline-danger">Leave Room</button>
+      </form>
+    </div>
+
+    <div class="col-4">
+      <h2>Current Friends</h2>
+      <ul class="mb-4 ps-0">
+        {% for friend, account_type in friends %}
+        <div class="d-flex justify-content-between">
+          <li class="p-2 flex-grow-1 friend-item rounded" name="{{ friend }}">
+            <span class="online-status">●</span>
+            {{ friend }}
+            <span class="badge text-bg-secondary">{{ account_type }}</span>
+          </li>
+          <button class="btn btn-danger btn-sm remove-button" name="{{ friend }}">Remove</button>
+        </div>
+        {% endfor %}
+      </ul>
+
+      <div class="mb-4">
+        <h2>Pending Friend Requests</h2>
+        <ul class="list-group list-group-flush">
+          {% for friend, account_type in pending_friends %}
+          <li class="list-group-item d-flex justify-content-between">
+            <div>
+              {{ friend }}
+              <span class="badge text-bg-secondary">{{ account_type }}</span>
+            </div>
+            <div>
+              <button class="btn btn-success btn-sm handle-request-button" name="{{ friend }}"
+                value="true">Confirm</button>
+              <button class="btn btn-danger btn-sm handle-request-button" name="{{ friend }}"
+                value="false">Reject</button>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div>
+        <h2>Add New Friend</h2>
+        <div class="alert d-none" id="addFriendAlert"></div>
+        <form class="input-group" id="addFriendForm">
+          <input type="text" name="friend" class="form-control" placeholder="Enter username">
+          <button class="btn btn-primary">Add</button>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>
 
 
