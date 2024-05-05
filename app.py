@@ -61,7 +61,7 @@ def login_user():
     return jsonify({
         "token": create_token(username),
         "username": username,
-        "redirect": url_for("home", username=username)
+        "redirect": url_for("message")
         })
 
 @app.route("/signup/user", methods=["POST"])
@@ -79,7 +79,7 @@ def signup_user():
     return jsonify({
         "token": create_token(username),
         "username": username,
-        "redirect": url_for("home", username=username)
+        "redirect": url_for("message")
         })
 
 # handler when a "404" error happens
@@ -87,21 +87,23 @@ def signup_user():
 def page_not_found(_):
     return render_template('404.jinja'), 404
 
-# home page, where the messaging app is
-@app.route("/home")
-def home():
-    # User can OLNY access their own home page
-    username = request.args.get("username")
+@app.route("/message")
+def message():
     token = request.cookies.get('auth_token')
-    if token is None or not verify_token(token, username):
+    username = request.cookies.get("username")
+    if not verify_token(token, username):
         abort(401)
 
     return render_template(
-        "home.jinja",
+        "message.jinja",
         username=username,
         friends=db.get_friends(username),
         pending_friends=db.get_pending_friends(username),
     )
+
+@app.route("/post")
+def post():
+    pass
 
 def create_token(username):
     return jwt.encode(

@@ -1,10 +1,26 @@
 {% extends 'base.jinja' %}
 {% block content %}
 <link rel="stylesheet" href="/static/css/home.css">
+
 <div class="container">
+    <nav class="navbar border-bottom mb-4">
+        <div class="container-fluid ps-0">
+            <a class="navbar-brand" href="{{ url_for('index') }}">Piazza</a>
+            <ul class="nav nav-underline justify-content-end">
+                <li class="nav-item">
+                    <a class="nav-link active" href="{{ url_for('message') }}">Message</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('post') }}">Post</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
     <nav class="navbar border-bottom">
-        <div class="container">
-            <a href="{{ url_for('home', username=username) }}" class="navbar-brand">Message App</a>
+        <div class="container ps-0 align-items-end">
+            <h3>Message App</h3>
+            <p class="mb-0">Username: {{ username }}</p>
         </div>
     </nav>
 
@@ -45,8 +61,10 @@
                     <li class="list-group-item d-flex justify-content-between">
                         {{ friend }}
                         <div>
-                            <button class="btn btn-success btn-sm handle-request-button" name="{{ friend }}" value="true">Confirm</button>
-                            <button class="btn btn-danger btn-sm handle-request-button" name="{{ friend }}" value="false">Reject</button>
+                            <button class="btn btn-success btn-sm handle-request-button" name="{{ friend }}"
+                                value="true">Confirm</button>
+                            <button class="btn btn-danger btn-sm handle-request-button" name="{{ friend }}"
+                                value="false">Reject</button>
                         </div>
                     </li>
                     {% endfor %}
@@ -67,5 +85,5 @@
 
 
 <script src="/static/js/libs/socket.io.min.js"></script>
-<script src="/static/js/home.js"></script>
+<script src="/static/js/message.js"></script>
 {% endblock %}
