@@ -1,18 +1,15 @@
 const socket = io();
 const username = Cookies.get("username");
 let room_id = parseInt(Cookies.get("room_id"));
+changeBoxDisplay(!!room_id);
 
-$(document).ready(() => {
-    changeBoxDisplay(!!room_id);
-
-    $('#addFriendForm').submit(handleAddFriend);
-    $('#startChatForm').submit(handleStartChat);
-    $('.friend-item').click(handleStartChat);
-    $('#messageInputForm').submit(sendMessage);
-    $('.handle-request-button').click(handleFriendRequest);
-    $('.remove-button').click(removeFriend);
-    $('#leaveButton').click(leaveChat);
-});
+$('#addFriendForm').submit(handleAddFriend);
+$('#startChatForm').submit(handleStartChat);
+$('.friend-item').click(handleStartChat);
+$('#messageInputForm').submit(sendMessage);
+$('.handle-request-button').click(handleFriendRequest);
+$('.remove-button').click(removeFriend);
+$('#leaveButton').click(leaveChat);
 
 // Socket event handlers
 socket.on("incoming", (msg, color = "black") => {
