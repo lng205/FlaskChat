@@ -59,9 +59,16 @@ class User(Base):
 class Message(Base):
     __tablename__ = "message"
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    sender: Mapped[str] = mapped_column(ForeignKey("user.username"))
+    sender = mapped_column(ForeignKey("user.username"))
     message: Mapped[str]
     room_id: Mapped[int]
+
+# model to store articles
+class Article(Base):
+    __tablename__ = "article"
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    username = mapped_column(ForeignKey("user.username"))
+    text: Mapped[str]
 
 # stateful counter used to generate the room id
 class Counter():

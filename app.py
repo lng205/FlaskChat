@@ -102,14 +102,18 @@ def message():
         pending_friends=db.get_pending_friends(username),
     )
 
-@app.route("/post")
-def post():
+@app.route("/article", methods=["GET", "POST"])
+def article():
     username = request.cookies.get("username")
-    return render_template(
-        "post.jinja",
-        username=username,
-        account_type=db.get_account_type(username)
-    )
+    if request.method == "GET":
+        return render_template(
+            "article.jinja",
+            username=username,
+            account_type=db.get_account_type(username)
+        )
+    else:
+        msg = db.add_article(username, request.json.get("text"))
+        return jsonify({"msg": msg})
 
 @app.route("/admin", methods=["GET", "POST"])
 def admin():

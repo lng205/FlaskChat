@@ -113,3 +113,10 @@ def get_account_type(username: str):
     with Session(engine) as session:
         user = session.get(User, username)
         return user.account_type
+
+def add_article(username: str, text: str):
+    with Session(engine) as session:
+        article = Article(username=username, text=text)
+        session.add(article)
+        session.commit()
+        return "Success!"
