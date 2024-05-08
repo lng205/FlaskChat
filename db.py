@@ -1,7 +1,7 @@
-'''
+"""
 db
 database file, containing all the logic to interface with the sql database
-'''
+"""
 
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
@@ -10,8 +10,7 @@ from models import *
 from pathlib import Path
 
 # creates the database directory
-Path("database") \
-    .mkdir(exist_ok=True)
+Path("database").mkdir(exist_ok=True)
 
 # "database/main.db" specifies the database file
 # change it if you wish
@@ -21,6 +20,7 @@ engine = create_engine("sqlite:///database/main.db", echo=False)
 # initializes the database
 Base.metadata.create_all(engine)
 
+
 # inserts a user to the database
 def insert_user(username: str, password: str):
     with Session(engine) as session:
@@ -28,25 +28,7 @@ def insert_user(username: str, password: str):
         session.add(user)
         session.commit()
 
-# gets a user from the database
-def get_user(username: str):
-    with Session(engine) as session:
-        return session.get(User, username)
 
-def get_friends(username: str):
-    with Session(engine) as session:
-        user = session.get(User, username)
-        if user is None:
-            return []
-        return [(friend.username, friend.account_type) for friend in user.friends]
-
-def get_pending_friends(username: str):
-    with Session(engine) as session:
-        user = session.get(User, username)
-        if user is None:
-            return []
-        return [(friend.username, friend.account_type) for friend in user.pending_friends]
-    
 def add_friend(username: str, friendname: str):
     with Session(engine) as session:
         user = session.get(User, username)
@@ -63,6 +45,7 @@ def add_friend(username: str, friendname: str):
         session.commit()
         return "Success!"
 
+
 def handle_friend_request(username: str, friendname: str, accept: bool):
     with Session(engine) as session:
         user = session.get(User, username)
@@ -73,6 +56,7 @@ def handle_friend_request(username: str, friendname: str, accept: bool):
             friend.friends.append(user)
         session.commit()
 
+
 def remove_friend(username: str, friendname: str):
     with Session(engine) as session:
         user = session.get(User, username)
@@ -81,26 +65,13 @@ def remove_friend(username: str, friendname: str):
         friend.friends.remove(user)
         session.commit()
 
+
 def save_message(sender: str, message: str, room_id: int):
     with Session(engine) as session:
         message = Message(sender=sender, message=message, room_id=room_id)
         session.add(message)
         session.commit()
 
-def get_messages(room_id: int):
-    with Session(engine) as session:
-        messages = session.scalars(select(Message).where(Message.room_id == room_id))
-        return [(message.sender, message.message) for message in messages]
-    
-def is_admin(username: str):
-    with Session(engine) as session:
-        user = session.get(User, username)
-        return user.account_type == "admin" if user else False
-    
-def get_all_users():
-    with Session(engine) as session:
-        users = session.scalars(select(User))
-        return [(user.username, user.account_type) for user in users]
 
 def set_account_type(username: str, account_type: str):
     with Session(engine) as session:
@@ -108,15 +79,19 @@ def set_account_type(username: str, account_type: str):
         user.account_type = account_type
         session.commit()
         return "Success!"
-    
-def get_account_type(username: str):
-    with Session(engine) as session:
-        user = session.get(User, username)
-        return user.account_type
 
-def add_article(username: str, text: str):
+
+def add_article(author: str, title: str, content: str):
     with Session(engine) as session:
-        article = Article(username=username, text=text)
+        article = Article(author=author, title=title, content=content)
         session.add(article)
+        session.commit()
+        return "Success!"
+
+
+def add_comment(author: str, content: str, article_id: int):
+    with Session(engine) as session:
+        comment = Comment(article_id=article_id, author=author, content=content)
+        session.add(comment)
         session.commit()
         return "Success!"

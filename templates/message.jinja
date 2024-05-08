@@ -1,12 +1,12 @@
 {% extends 'base.jinja' %}
 {% block content %}
-<link rel="stylesheet" href="/static/css/home.css">
+<link rel="stylesheet" href="/static/css/message.css">
 
 <div class="container">
   <!-- navbar -->
   <nav class="navbar border-bottom mb-4">
     <div class="container-fluid ps-0">
-      <a class="navbar-brand" href="{{ url_for('index') }}">Piazza</a>
+      <a class="navbar-brand" href="{{ url_for('message') }}">Piazza</a>
       <ul class="nav nav-underline justify-content-end">
         <li class="nav-item">
           <a class="nav-link active" href="{{ url_for('message') }}">Message</a>
@@ -14,7 +14,7 @@
         <li class="nav-item">
           <a class="nav-link" href="{{ url_for('article') }}">Article</a>
         </li>
-        {% if account_type == "admin" %}
+        {% if user.account_type == "admin" %}
         <li class="nav-item">
           <a class="nav-link" href="{{ url_for('admin') }}">admin</a>
         </li>
@@ -28,8 +28,8 @@
     <div class="container ps-0 align-items-end">
       <h3>Message App</h3>
       <div>
-        <span>Username: {{ username }}</span>
-        <span class="badge text-bg-secondary">{{ account_type }}</span>
+        <span>Username: {{ user.username }}</span>
+        <span class="badge text-bg-secondary">{{ user.account_type }}</span>
       </div>
     </div>
   </nav>
@@ -54,14 +54,14 @@
     <div class="col-4">
       <h2>Current Friends</h2>
       <ul class="mb-4 ps-0">
-        {% for friend, account_type in friends %}
+        {% for friend in user.friends %}
         <div class="d-flex justify-content-between">
-          <li class="p-2 flex-grow-1 friend-item rounded" name="{{ friend }}">
+          <li class="p-2 flex-grow-1 friend-item rounded" name="{{ friend.username }}">
             <span class="online-status">●</span>
-            {{ friend }}
-            <span class="badge text-bg-secondary">{{ account_type }}</span>
+            {{ friend.username }}
+            <span class="badge text-bg-secondary">{{ friend.account_type }}</span>
           </li>
-          <button class="btn btn-danger btn-sm remove-button" name="{{ friend }}">Remove</button>
+          <button class="btn btn-danger btn-sm remove-button" name="{{ friend.username }}">Remove</button>
         </div>
         {% endfor %}
       </ul>
@@ -69,16 +69,16 @@
       <div class="mb-4">
         <h2>Pending Friend Requests</h2>
         <ul class="list-group list-group-flush">
-          {% for friend, account_type in pending_friends %}
+          {% for friend in user.pending_friends %}
           <li class="list-group-item d-flex justify-content-between">
             <div>
-              {{ friend }}
-              <span class="badge text-bg-secondary">{{ account_type }}</span>
+              {{ friend.username }}
+              <span class="badge text-bg-secondary">{{ friend.account_type }}</span>
             </div>
             <div>
-              <button class="btn btn-success btn-sm handle-request-button" name="{{ friend }}"
+              <button class="btn btn-success btn-sm handle-request-button" name="{{ friend.username }}"
                 value="true">Confirm</button>
-              <button class="btn btn-danger btn-sm handle-request-button" name="{{ friend }}"
+              <button class="btn btn-danger btn-sm handle-request-button" name="{{ friend.username }}"
                 value="false">Reject</button>
             </div>
           </li>

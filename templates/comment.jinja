@@ -1,0 +1,47 @@
+{% extends "base.jinja" %}
+
+{% block content %}
+<div class="container">
+
+  <div class="container">
+    <!-- navbar -->
+    <nav class="navbar border-bottom mb-4">
+      <div class="container-fluid ps-0">
+        <a class="navbar-brand" href="{{ url_for('message') }}">Piazza</a>
+        <ul class="nav nav-underline justify-content-end">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('message') }}">Message</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="{{ url_for('article') }}">Article</a>
+          </li>
+          {% if user.account_type == "admin" %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('admin') }}">admin</a>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+    </nav>
+  
+    <!-- title -->
+    <nav class="navbar border-bottom">
+      <div class="container ps-0 align-items-end">
+        <h3>Article</h3>
+        <div>
+          <span>Username: {{ user.username }}</span>
+          <span class="badge text-bg-secondary">{{ user.account_type }}</span>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container py-4 border-bottom ps-0">
+      <div class="container ps-0 text-muted">
+        <small>{{ article.author }}</small>
+        <span class="badge text-bg-secondary">{{ user.account_type }}</span>
+      </div>
+      <h3 class="title">{{ article.title }}</h3>
+      <p>{{ article.content }}</p>
+    </div>
+</div>
+{% endblock %}

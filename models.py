@@ -67,8 +67,21 @@ class Message(Base):
 class Article(Base):
     __tablename__ = "article"
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    username = mapped_column(ForeignKey("user.username"))
-    text: Mapped[str]
+    author = mapped_column(ForeignKey("user.username"))
+    title: Mapped[str]
+    content: Mapped[str]
+
+    author_obj: Mapped[User] = relationship("User")
+    comment_objs: Mapped[List["Comment"]] = relationship("Comment")
+
+class Comment(Base):
+    __tablename__ = "comment"
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    article_id = mapped_column(ForeignKey("article.id"))
+    author = mapped_column(ForeignKey("user.username"))
+    content: Mapped[str]
+
+    article_obj: Mapped["Article"] = relationship(back_populates="comment_objs")
 
 # stateful counter used to generate the room id
 class Counter():
