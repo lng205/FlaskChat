@@ -1,17 +1,15 @@
-$('#newArticleForm').submit(function (event) {
+$('#newCommentForm').submit(function (event) {
     event.preventDefault();
-    const title = $('#newArticleTitle').val();
-    const content = $('#newArticleContent').val();
+    const content = $('#newCommentContent').val();
     axios.post(window.location.href, {
-        title: title,
         content: content
     }).then(res => {
         const msg = res.data.msg;
-        toggleAlert('#newArticleAlert', msg, msg === "Success!");
+        toggleAlert('#newCommentAlert', msg, msg === "Success!");
     })
     // Clear the input fields
-    $('#newArticleTitle').val('');
-    $('#newArticleContent').val('');
+    $('#newCommentTitle').val('');
+    $('#newCommentContent').val('');
 })
 
 function toggleAlert(selector, message, isSuccess) {

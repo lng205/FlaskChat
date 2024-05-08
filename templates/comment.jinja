@@ -2,46 +2,73 @@
 
 {% block content %}
 <div class="container">
+  <!-- navbar -->
+  <nav class="navbar border-bottom mb-4">
+    <div class="container-fluid ps-0">
+      <a class="navbar-brand" href="{{ url_for('message') }}">Piazza</a>
+      <ul class="nav nav-underline justify-content-end">
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('message') }}">Message</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="{{ url_for('article') }}">Article</a>
+        </li>
+        {% if user.account_type == "admin" %}
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('admin') }}">admin</a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+  </nav>
 
-  <div class="container">
-    <!-- navbar -->
-    <nav class="navbar border-bottom mb-4">
-      <div class="container-fluid ps-0">
-        <a class="navbar-brand" href="{{ url_for('message') }}">Piazza</a>
-        <ul class="nav nav-underline justify-content-end">
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('message') }}">Message</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link active" href="{{ url_for('article') }}">Article</a>
-          </li>
-          {% if user.account_type == "admin" %}
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('admin') }}">admin</a>
-          </li>
-          {% endif %}
-        </ul>
-      </div>
-    </nav>
-  
-    <!-- title -->
-    <nav class="navbar border-bottom">
-      <div class="container ps-0 align-items-end">
-        <h3>Article</h3>
-        <div>
-          <span>Username: {{ user.username }}</span>
-          <span class="badge text-bg-secondary">{{ user.account_type }}</span>
-        </div>
-      </div>
-    </nav>
-
-    <div class="container py-4 border-bottom ps-0">
-      <div class="container ps-0 text-muted">
-        <small>{{ article.author }}</small>
+  <!-- title -->
+  <nav class="navbar border-bottom">
+    <div class="container ps-0 align-items-end">
+      <h3>Comment</h3>
+      <div>
+        <span>Username: {{ user.username }}</span>
         <span class="badge text-bg-secondary">{{ user.account_type }}</span>
       </div>
-      <h3 class="title">{{ article.title }}</h3>
-      <p>{{ article.content }}</p>
     </div>
+  </nav>
+
+  <div class="container py-4 border-bottom ps-0">
+    <div class="container ps-0 text-muted">
+      <small>{{ article.author }}
+        <span class="badge text-bg-secondary">{{ user.account_type }}</span>
+      </small>
+      
+    </div>
+    <h3 class="title">{{ article.title }}</h3>
+    <p>{{ article.content }}</p>
+  </div>
+
+  <div class="container mt-5">
+    {% for comment in article.comment_objs %}
+    <div class="card mb-2">
+      <div class="card-body">
+        <span class="text-muted">{{ comment.author }}</span>
+        <span class="badge text-bg-secondary">{{ comment.author_obj.account_type }}</span>
+        <p class="mb-1">{{ comment.content }}</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+
+  <!-- write a new comment -->
+  <form id="newCommentForm">
+    <div class="mt-5">
+      <div class="alert d-none" id="newCommentAlert"></div>
+      <label class="form-label">Write a new comment</label>
+      <textarea class="form-control mt-2" id="newCommentContent" rows="3" required></textarea>
+      <div class="d-flex justify-content-end">
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </div>
+    </div>
+  </form>
 </div>
+
+<script src="/static/js/comment.js"></script>
 {% endblock %}

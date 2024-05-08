@@ -114,7 +114,6 @@ def message():
         user = session.get(db.User, username)
         return render_template("message.jinja", user=user)
 
-
 @app.route("/article", methods=["GET", "POST"])
 def article():
     username = request.cookies.get("username")
@@ -135,7 +134,7 @@ def article():
         return jsonify({"msg": msg})
 
 
-@app.route("/comment")
+@app.route("/comment", methods=["GET", "POST"])
 def comment():
     username = request.cookies.get("username")
     # token = request.cookies.get("auth_token")
@@ -143,12 +142,18 @@ def comment():
     #     abort(401)
 
     id = request.args.get("id")
-    with db.Session(db.engine) as session:
-        user = session.get(db.User, username)
-        article = session.get(db.Article, id)
-        if article is None:
-            abort(404)
-        return render_template("comment.jinja", user=user, article=article)
+    if request.method == "GET":
+        with db.Session(db.engine) as session:
+            user = session.get(db.User, username)
+            article = session.get(db.Article, id)
+            if article is None:
+                abort(404)
+            return render_template("comment.jinja", user=user, article=article)
+    else:
+        content = request.json.get("content")
+        msg = db.add_comment(username, id, content)
+        return jsonify({"msg": msg})
+
 
 
 @app.route("/admin", methods=["GET", "POST"])

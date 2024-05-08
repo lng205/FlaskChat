@@ -46,8 +46,10 @@
         <p>{{ article.content }}</p>
       </div>
       <div class="container text-muted">
-        <small>{{ article.author }}</small>
-        <span class="badge text-bg-secondary">{{ article.account_type }}</span>
+        <small>
+          {{ article.author }}
+          <span class="badge text-bg-secondary">{{ article.author_obj.account_type }}</span>
+        </small>
       </div>
     </li>
     {% endfor %}
@@ -57,7 +59,7 @@
   <form id="newArticleForm">
     <div class="mt-5">
       <div class="alert d-none" id="newArticleAlert"></div>
-      <label for="newArticleText" class="form-label">Write a new Article</label>
+      <label class="form-label">Write a new article</label>
       <input type="text" class="form-control" id="newArticleTitle" placeholder="Title" required>
       <textarea class="form-control mt-2" id="newArticleContent" rows="3" required></textarea>
       <div class="d-flex justify-content-end">

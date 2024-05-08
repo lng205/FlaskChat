@@ -82,6 +82,7 @@ class Comment(Base):
     content: Mapped[str]
 
     article_obj: Mapped["Article"] = relationship(back_populates="comment_objs")
+    author_obj: Mapped["User"] = relationship("User")
 
 # stateful counter used to generate the room id
 class Counter():

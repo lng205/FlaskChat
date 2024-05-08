@@ -29,6 +29,12 @@ def insert_user(username: str, password: str):
         session.commit()
 
 
+# gets a user from the database
+def get_user(username: str):
+    with Session(engine) as session:
+        return session.get(User, username)
+
+
 def add_friend(username: str, friendname: str):
     with Session(engine) as session:
         user = session.get(User, username)
@@ -89,7 +95,7 @@ def add_article(author: str, title: str, content: str):
         return "Success!"
 
 
-def add_comment(author: str, content: str, article_id: int):
+def add_comment(author: str, article_id: int, content: str):
     with Session(engine) as session:
         comment = Comment(article_id=article_id, author=author, content=content)
         session.add(comment)
