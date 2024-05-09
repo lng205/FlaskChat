@@ -7,4 +7,5 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import db
 
-db.set_account_type("admin", "admin")
+res = db.set_account_type("admin", "admin")
+print(res)

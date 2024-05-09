@@ -30,14 +30,14 @@
   <!-- content -->
   <div class="alert alert-info d-none"></div>
   <div class="container mt-3">
-    {% for username, account_type in userdata %}
+    {% for user in users %}
     <div class="row">
       <div class="col-6 d-flex align-items-center border rounded">
-        <span class="me-2">{{ username }}</span>
-        <span class="badge text-bg-secondary">{{ account_type }}</span>
+        <span class="me-2">{{ user.username }}</span>
+        <span class="badge text-bg-secondary">{{ user.account_type }}</span>
       </div>
       <div class="col-6">
-        <div class="input-group" name="{{ username }}">
+        <div class="input-group" name="{{ user.username }}">
           <select class="form-select">
             <option value="student">student</option>
             <option value="academic">academic</option>

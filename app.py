@@ -164,7 +164,9 @@ def admin():
     #     abort(401)
 
     if request.method == "GET":
-        return render_template("admin.jinja", userdata=db.get_all_users())
+        with db.Session(db.engine) as session:
+            users = session.scalars(db.select(db.User))
+            return render_template("admin.jinja", users=users)
     else:
         username = request.json.get("username")
         account_type = request.json.get("type")

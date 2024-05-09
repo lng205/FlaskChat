@@ -34,11 +34,16 @@
   </nav>
 
   <div class="container py-4 border-bottom ps-0">
-    <div class="container ps-0 text-muted">
+    <div class="text-muted d-flex justify-content-between">
       <small>{{ article.author }}
         <span class="badge text-bg-secondary">{{ user.account_type }}</span>
       </small>
-      
+      {% if user.account_type != "student" or user == article.author_obj %}
+      <div>
+        <button class="btn border btn-sm">✏️</button>
+        <button class="btn border btn-sm">❌</button>
+      </div>
+      {% endif %}
     </div>
     <h3 class="title">{{ article.title }}</h3>
     <p>{{ article.content }}</p>
@@ -48,8 +53,15 @@
     {% for comment in article.comment_objs %}
     <div class="card mb-2">
       <div class="card-body">
-        <span class="text-muted">{{ comment.author }}</span>
-        <span class="badge text-bg-secondary">{{ comment.author_obj.account_type }}</span>
+        <div class="d-flex justify-content-between">
+          <div>
+            <span class="text-muted">{{ comment.author }}</span>
+            <span class="badge text-bg-secondary">{{ comment.author_obj.account_type }}</span>
+          </div>
+          {% if user.account_type != "student" %}
+          <button class="btn border btn-sm">❌</button>
+          {% endif %}
+        </div>
         <p class="mb-1">{{ comment.content }}</p>
       </div>
     </div>
