@@ -95,6 +95,34 @@ def add_article(author: str, title: str, content: str):
         return "Success!"
 
 
+def edit_article(editor: str, article_id: int, title: str, content: str):
+    with Session(engine) as session:
+        article = session.get(Article, article_id)
+        editor_user_type = session.get(User, editor).account_type
+        if article.author != editor and editor_user_type == "student":
+            return "Permission Denied!"
+        
+        article.title = title
+        article.content = content
+        session.commit()
+        return "Success!"
+
+
+def delete(editor: str, type: str, data_id: int):
+    with Session(engine) as session:
+        editor_user_type = session.get(User, editor).account_type
+        if editor_user_type == "student":
+            return "Permission Denied!"
+        
+        if type == "article":
+            data = session.get(Article, data_id)
+        else:
+            data = session.get(Comment, data_id)            
+        session.delete(data)
+        session.commit()
+        return "Success!"
+
+
 def add_comment(author: str, article_id: int, content: str):
     with Session(engine) as session:
         comment = Comment(article_id=article_id, author=author, content=content)

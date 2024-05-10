@@ -33,23 +33,27 @@
     </div>
   </nav>
 
-  <div class="container py-4 border-bottom ps-0">
+  <form class="container py-4 border-bottom ps-0" name="{{ article.id}}">
+    <div class="alert d-none" id="editArticleAlert"></div>
     <div class="text-muted d-flex justify-content-between">
       <small>{{ article.author }}
         <span class="badge text-bg-secondary">{{ user.account_type }}</span>
       </small>
-      {% if user.account_type != "student" or user == article.author_obj %}
       <div>
-        <button class="btn border btn-sm">✏️</button>
-        <button class="btn border btn-sm">❌</button>
+        {% if user.account_type != "student" or user == article.author_obj %}
+        <button class="btn border btn-sm btn-edit">✏️</button>
+        {% endif %}
+        {% if user.account_type != "student" %}
+        <button class="btn border btn-sm btn-delete-article">❌</button>
+        {% endif %}
       </div>
-      {% endif %}
     </div>
     <h3 class="title">{{ article.title }}</h3>
     <p>{{ article.content }}</p>
-  </div>
+  </form>
 
   <div class="container mt-5">
+    <div class="alert d-none" id="deleteCommentAlert"></div>
     {% for comment in article.comment_objs %}
     <div class="card mb-2">
       <div class="card-body">
@@ -59,7 +63,7 @@
             <span class="badge text-bg-secondary">{{ comment.author_obj.account_type }}</span>
           </div>
           {% if user.account_type != "student" %}
-          <button class="btn border btn-sm">❌</button>
+          <button class="btn border btn-sm btn-delete-comment" name="{{ comment.id }}">❌</button>
           {% endif %}
         </div>
         <p class="mb-1">{{ comment.content }}</p>
