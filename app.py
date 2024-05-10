@@ -155,6 +155,32 @@ def comment():
         return jsonify({"msg": msg})
 
 
+@app.route("/edit", methods=["POST"])
+def edit():
+    username = request.cookies.get("username")
+    # token = request.cookies.get("auth_token")
+    # if not verify_token(token, username):
+    #     abort(401)
+
+    id = request.json.get("id")
+    title = request.json.get("title")
+    content = request.json.get("content")
+    msg = db.edit_article(username, id, title, content)
+    return jsonify({"msg": msg})
+
+
+@app.route("/delete", methods=["POST"])
+def delete():
+    username = request.cookies.get("username")
+    # token = request.cookies.get("auth_token")
+    # if not verify_token(token, username):
+    #     abort(401)
+
+    type = request.json.get("type")
+    id = request.json.get("id")
+    msg = db.delete(username, type, id)
+    return jsonify({"msg": msg})
+
 
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
