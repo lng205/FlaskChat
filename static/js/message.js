@@ -10,6 +10,10 @@ $('#messageInputForm').submit(sendMessage);
 $('.handle-request-button').click(handleFriendRequest);
 $('.remove-button').click(removeFriend);
 $('#leaveButton').click(leaveChat);
+// get the user mute status from class the_mute_status
+var isMuted = false;
+isMuted = $('.the_mute_status').text() === 'muted';
+
 
 // Socket event handlers
 socket.on("incoming", (msg, color = "black") => {
@@ -41,6 +45,11 @@ function handleAddFriend(event) {
 
 function handleStartChat(event) {
     const nameAttr = $(this).attr('name');
+    // if user is muted, then return a message to user
+    if (isMuted) {
+        alert('You are muted, you cannot chat with others');
+        return;
+    }
     if (nameAttr) {
         startChat(nameAttr);
     }

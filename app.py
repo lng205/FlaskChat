@@ -27,13 +27,13 @@ socketio = SocketIO(app)
 # don't remove this!!
 import socket_routes
 
-CSP = "default-src 'self'; script-src 'self';"
+# CSP = "default-src 'self'; script-src 'self';"
 
 
-@app.after_request
-def add_security_headers(response):
-    response.headers["Content-Security-Policy"] = CSP
-    return response
+# @app.after_request
+# def add_security_headers(response):
+#     response.headers["Content-Security-Policy"] = CSP
+#     return response
 
 
 @app.route("/")
@@ -97,10 +97,10 @@ def signup_user():
     )
 
 
-# handler when a "404" error happens
-@app.errorhandler(404)
-def page_not_found(_):
-    return render_template("404.jinja"), 404
+# # handler when a "404" error happens
+# @app.errorhandler(404)
+# def page_not_found(_):
+#     return render_template("404.jinja"), 404
 
 
 @app.route("/message")
@@ -196,8 +196,16 @@ def admin():
     else:
         username = request.json.get("username")
         account_type = request.json.get("type")
-        msg = db.set_account_type(username, account_type)
+        mute_status = request.json.get("muteStatus")
+        print(username, account_type, mute_status)
+        msg = "No changes made." 
+        if account_type is not None:
+            msg = db.set_account_type(username, account_type)
+        if mute_status is not None:
+            msg = db.change_mute_status(username, mute_status)
+
         return jsonify({"msg": msg})
+
 
 
 def create_token(username):

@@ -14,7 +14,7 @@
           <a class="nav-link" href="{{ url_for('article') }}">Article</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link active" href="{{ url_for('admin') }}">admin</a>
+          <a class="nav-link active" href="{{ url_for('admin') }}">Manage</a>
         </li>
       </ul>
     </div>
@@ -26,7 +26,6 @@
       <h3>Admin Page</h3>
     </div>
   </nav>
-
   <!-- content -->
   <div class="alert alert-info d-none"></div>
   <div class="container mt-3">
@@ -35,6 +34,13 @@
       <div class="col-6 d-flex align-items-center border rounded">
         <span class="me-2">{{ user.username }}</span>
         <span class="badge text-bg-secondary">{{ user.account_type }}</span>
+        {% if user.account_type not in ["academic", "administrative", "admin"] %}
+        <button class="btn btn-danger btn-sm toggle-mute"
+        data-username="{{ user.username }}"
+        data-is-muted="{{ user.mute_status }}">
+    {{ 'Unmute' if user.mute_status else 'Mute' }}
+</button>
+{% endif %}
       </div>
       <div class="col-6">
         <div class="input-group" name="{{ user.username }}">
@@ -44,12 +50,11 @@
             <option value="administrative">administrative</option>
             <option value="admin">admin</option>
           </select>
-          <button class="btn btn-outline-secondary" type="button">Change</button>
+          <button class="btn btn-outline-secondary change-role" type="button">Change</button>
         </div>
       </div>
     </div>
     {% endfor %}
-  </div>
-</div>
+ 
 <script src="/static/js/admin.js"></script>
 {% endblock %}

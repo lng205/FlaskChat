@@ -14,9 +14,9 @@
         <li class="nav-item">
           <a class="nav-link active" href="{{ url_for('article') }}">Article</a>
         </li>
-        {% if user.account_type == "admin" %}
+        {% if user.account_type == "admin" or user.account_type == "academic" or user.account_type == "administrative" %}
         <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('admin') }}">admin</a>
+          <a class="nav-link" href="{{ url_for('admin') }}">Manage</a>
         </li>
         {% endif %}
       </ul>
@@ -30,6 +30,8 @@
       <div>
         <span>Username: {{ user.username }}</span>
         <span class="badge text-bg-secondary">{{ user.account_type }}</span>
+        <span class="badge text-bg-secondary">{% if user.mute_status %}muted{% endif %}</span>
+        
       </div>
     </div>
   </nav>
@@ -58,15 +60,19 @@
   <!-- write a new article -->
   <form id="newArticleForm">
     <div class="mt-5">
-      <div class="alert d-none" id="newArticleAlert"></div>
-      <label class="form-label">Write a new article</label>
-      <input type="text" class="form-control" id="newArticleTitle" placeholder="Title" required>
-      <textarea class="form-control mt-2" id="newArticleContent" rows="3" required></textarea>
-      <div class="d-flex justify-content-end">
-        <button type="submit" class="btn btn-primary">Submit</button>
-      </div>
+        {% if user.mute_status %}
+        <div class="alert alert-warning" id="muteWarning">You have been muted!</div>
+        {% endif %}
+        <div class="alert d-none" id="newArticleAlert"></div>
+        <label class="form-label">Write a new article</label>
+        <input type="text" class="form-control" id="newArticleTitle" placeholder="Title" required {{ 'disabled' if user.mute_status }}>
+        <textarea class="form-control mt-2" id="newArticleContent" rows="3" required {{ 'disabled' if user.mute_status }}></textarea>
+        <div class="d-flex justify-content-end">
+            <button type="submit" class="btn btn-primary" {{ 'disabled' if user.mute_status }}>Submit</button>
+        </div>
     </div>
-  </form>
+</form>
+
 </div>
 
 <script src="/static/js/article.js"></script>

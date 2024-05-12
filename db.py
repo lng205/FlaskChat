@@ -106,7 +106,12 @@ def edit_article(editor: str, article_id: int, title: str, content: str):
         article.content = content
         session.commit()
         return "Success!"
-
+def change_mute_status(username: str, mute_status: bool):
+    with Session(engine) as session:
+        user = session.get(User, username)
+        user.mute_status = mute_status
+        session.commit()
+        return "Success!"
 
 def delete(editor: str, type: str, data_id: int):
     with Session(engine) as session:
