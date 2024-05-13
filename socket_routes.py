@@ -30,7 +30,7 @@ def connect():
         join_room(int(room_id))
         emit("incoming", (f"{username} has connected", "green"), to=int(room_id))
         members = room.get_room_members(room_id)
-        emit('update_members', {'members': members}, to=room_id)
+        emit("update_members", {"members": members}, to=room_id)
         # emit message history
         with db.Session(db.engine) as session:
             messages = session.scalars(
@@ -41,7 +41,7 @@ def connect():
 
     # Map the username to the socket session id
     user_sessions[username] = request.sid
-    
+
     with db.Session(db.engine) as session:
         user = session.get(db.User, username)
         for friend in user.friends:
@@ -68,7 +68,7 @@ def disconnect():
         emit("incoming", (f"{username} has disconnected", "red"), to=int(room_id))
         room.delete_room_member(room_id, username)
         members = room.get_room_members(room_id)
-        emit('update_members', {'members': members}, to=room_id)
+        emit("update_members", {"members": members}, to=room_id)
     # Remove the user from the user_sessions dictionary
     user_sessions.pop(username, None)
 
@@ -89,7 +89,7 @@ def disconnect():
 def send(username, message, room_id):
     emit("incoming", (f"{username}: {message}"), to=room_id)
     members = room.get_room_members(room_id)
-    emit('update_members', {'members': members}, to=room_id)
+    emit("update_members", {"members": members}, to=room_id)
     # save the message to the database
     db.save_message(username, message, room_id)
 
@@ -130,15 +130,18 @@ def join(sender_name, receiver_name):
             ),
         )
         # emit message history
-        # messages = db.get_messages(room_id)
-        # for sender, message in messages:
-        #     emit("incoming", (f"{sender}: {message}", "grey"))
+        with db.Session(db.engine) as session:
+            messages = session.scalars(
+                db.select(db.Message).where(db.Message.room_id == room_id)
+            )
+            for message in messages:
+                emit("incoming", (f"{message.sender}: {message.message}", "grey"))
         # update the room member
         room.add_room_member(room_id, sender_name)
         room.add_room_member(room_id, receiver_name)
         members = room.get_room_members(room_id)
         print(members)
-        emit('update_members', {'members': members}, to=room_id)
+        emit("update_members", {"members": members}, to=room_id)
         return room_id
     else:
         room.add_room_member(room_id, receiver_name)
@@ -165,7 +168,7 @@ def leave(username, room_id):
     emit("incoming", (f"{username} has left the room.", "red"), to=room_id)
     room.delete_room_member(room_id, username)
     members = room.get_room_members(room_id)
-    emit('update_members', {'members': members}, to=room_id)
+    emit("update_members", {"members": members}, to=room_id)
     leave_room(room_id)
     room.leave_room(username)
 
