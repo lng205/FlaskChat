@@ -135,7 +135,7 @@ def join(sender_name, receiver_name):
                 db.select(db.Message).where(db.Message.room_id == room_id)
             )
             for message in messages:
-                emit("incoming", (f"{message.sender}: {message.message}", "grey"))
+                emit("incoming", (f"{message.sender}: {message.message}", "grey"), to=room_id)
         # update the room member
         room.add_room_member(room_id, sender_name)
         room.add_room_member(room_id, receiver_name)
