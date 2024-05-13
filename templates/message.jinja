@@ -60,7 +60,7 @@
     </div>
 
     <div class="col-4">
-      <h2>Current Friends</h2>
+      <h3>Current Friends</h3>
       <ul class="mb-4 ps-0">
         {% for friend in user.friends %}
         <div class="d-flex justify-content-between">
@@ -75,7 +75,16 @@
       </ul>
 
       <div class="mb-4">
-        <h2>Pending Friend Requests</h2>
+        <h3>Pending Friend Requests <button id="helpBtn" class="btn btn-outline-secondary">?</button></h3>
+        <div id="helpPopup" class="btn btn-secondary help-popup" style="display: none;">
+            <h4>Pending Friend list</h4>
+            <p>Here you can see the list of users who have sent you friend requests. You can confirm or reject them.</p>
+            <p>If you accept a friend request, you will be able to chat with that user.</p>
+            <p>Otherwise you rejected, the user will be removed from the pending list.</p>
+            <button id="closePopup" class="btn btn-secondary help-close-b">Click to EXIT</button>
+        </div>
+        </button>
+       
         <ul class="list-group list-group-flush">
           {% for friend in user.pending_friends %}
           <li class="list-group-item d-flex justify-content-between">
@@ -95,7 +104,7 @@
       </div>
 
       <div>
-        <h2>Add New Friend</h2>
+        <h3>Add New Friend</h3>
         <div class="alert d-none" id="addFriendAlert"></div>
         <form class="input-group" id="addFriendForm">
           <input type="text" name="friend" class="form-control" placeholder="Enter username">
