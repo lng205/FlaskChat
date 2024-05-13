@@ -35,6 +35,18 @@ socket.on("add_friend_response", res => {
     toggleAlert('#addFriendAlert', res, res === "Success!");
 });
 
+socket.on('update_members', function(data) {
+    let membersList = document.getElementById('roomMembers');
+    membersList.innerHTML = '';  // Clear existing members list
+    console.log(data.members);
+    data.members.forEach(member => {
+        let memberItem = document.createElement('span');
+        memberItem.textContent = member;
+        membersList.appendChild(memberItem);
+    });
+});
+
+
 // Form submission handlers
 function handleAddFriend(event) {
     event.preventDefault();
@@ -42,6 +54,7 @@ function handleAddFriend(event) {
     socket.emit("add_friend", username, input.val());
     input.val("");
 }
+
 
 function handleStartChat(event) {
     const nameAttr = $(this).attr('name');

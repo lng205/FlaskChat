@@ -29,6 +29,8 @@ def connect():
     if room_id and username:
         join_room(int(room_id))
         emit("incoming", (f"{username} has connected", "green"), to=int(room_id))
+        members = room.get_room_members(room_id)
+        emit('update_members', {'members': members}, to=room_id)
         # emit message history
         with db.Session(db.engine) as session:
             messages = session.scalars(
@@ -39,7 +41,7 @@ def connect():
 
     # Map the username to the socket session id
     user_sessions[username] = request.sid
-
+    
     with db.Session(db.engine) as session:
         user = session.get(db.User, username)
         for friend in user.friends:
@@ -64,7 +66,9 @@ def disconnect():
     room_id = request.cookies.get("room_id")
     if room_id and username:
         emit("incoming", (f"{username} has disconnected", "red"), to=int(room_id))
-
+        room.delete_room_member(room_id, username)
+        members = room.get_room_members(room_id)
+        emit('update_members', {'members': members}, to=room_id)
     # Remove the user from the user_sessions dictionary
     user_sessions.pop(username, None)
 
@@ -84,7 +88,8 @@ def disconnect():
 @socketio.on("send")
 def send(username, message, room_id):
     emit("incoming", (f"{username}: {message}"), to=room_id)
-
+    members = room.get_room_members(room_id)
+    emit('update_members', {'members': members}, to=room_id)
     # save the message to the database
     db.save_message(username, message, room_id)
 
@@ -125,11 +130,19 @@ def join(sender_name, receiver_name):
             ),
         )
         # emit message history
-        messages = db.get_messages(room_id)
-        for sender, message in messages:
-            emit("incoming", (f"{sender}: {message}", "grey"))
+        # messages = db.get_messages(room_id)
+        # for sender, message in messages:
+        #     emit("incoming", (f"{sender}: {message}", "grey"))
+        # update the room member
+        room.add_room_member(room_id, sender_name)
+        room.add_room_member(room_id, receiver_name)
+        members = room.get_room_members(room_id)
+        print(members)
+        emit('update_members', {'members': members}, to=room_id)
         return room_id
-
+    else:
+        room.add_room_member(room_id, receiver_name)
+        room.add_room_member(room_id, sender_name)
     # if the user isn't inside of any room,
     # perhaps this user has recently left a room
     # or is simply a new user looking to chat with someone
@@ -150,6 +163,9 @@ def join(sender_name, receiver_name):
 @socketio.on("leave")
 def leave(username, room_id):
     emit("incoming", (f"{username} has left the room.", "red"), to=room_id)
+    room.delete_room_member(room_id, username)
+    members = room.get_room_members(room_id)
+    emit('update_members', {'members': members}, to=room_id)
     leave_room(room_id)
     room.leave_room(username)
 
@@ -170,6 +186,9 @@ def handle_friend_request(username, friend, accept):
 
 @socketio.on("remove_friend")
 def remove_friend(username, friend):
+    room_id = room.get_room_id(friend)
     db.remove_friend(username, friend)
+    if room_id:
+        room.delete_room_member(room_id, username)
     emit("friend_change")
     emit("friend_change", to=user_sessions[friend])

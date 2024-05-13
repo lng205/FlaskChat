@@ -101,7 +101,8 @@ class Room():
         # for example self.dict["John"] -> gives you the room id of 
         # the room where John is in
         self.dict: Dict[str, int] = {}
-
+        #store room members !!! here
+        self.members: Dict[int, List[str]] = {}
     def create_room(self, sender: str, receiver: str) -> int:
         room_id = self.counter.get()
         self.dict[sender] = room_id
@@ -121,4 +122,17 @@ class Room():
         if user not in self.dict.keys():
             return None
         return self.dict[user]
+    def add_room_member(self, room_id: int, member: str):
+        if room_id not in self.members.keys():
+            self.members[room_id] = []
+        #check duplicate
+        if member not in self.members[room_id]:
+            self.members[room_id].append(member)
+    def get_room_members(self, room_id: int):
+        return self.members.get(room_id, [])
+    def delete_room_member(self, room_id: int, member: str):
+        if room_id in self.members.keys():
+            self.members[room_id].remove(member)
+            if len(self.members[room_id]) == 0:
+                del self.members[room_id]
     

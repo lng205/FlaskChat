@@ -18,3 +18,21 @@
 .friend-item span {
     color: red;
 }
+.members-container {
+    display: flex;      
+    overflow-x: auto;     /* if exceed it enable scrall */
+    align-items: center;  
+    padding: 10px;
+    white-space: nowrap;  
+    background: #f8f9fa;  
+    border-radius: 5px;   
+}
+
+.members-container span {
+    margin-right: 15px;
+    padding: 5px 10px;
+    background: #e1e1e1;  
+    border-radius: 5px;   
+}
+
+  

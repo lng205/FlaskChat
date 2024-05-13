@@ -134,3 +134,4 @@ def add_comment(author: str, article_id: int, content: str):
         session.add(comment)
         session.commit()
         return "Success!"
+    
