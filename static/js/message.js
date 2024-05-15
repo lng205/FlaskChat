@@ -111,3 +111,31 @@ function toggleAlert(selector, message, isSuccess) {
         .toggleClass('alert-danger', !isSuccess)
         .removeClass('d-none');
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    setupPopups();
+    setupChatFeatures();
+});
+function setupPopups() {
+    var helpBtn = document.getElementById('helpBtn');
+    var closePopup = document.getElementById('closePopup');
+     var helpPopup = document.getElementById('helpPopup');
+
+    if (helpBtn && closePopup) {
+        helpBtn.addEventListener('click', function() {
+            document.getElementById('helpPopup').style.display = 'block';
+        });
+        closePopup.addEventListener('click', function() {
+            document.getElementById('helpPopup').style.display = 'none';
+        });
+        helpPopup.addEventListener('click', function(event) {
+            document.getElementById('helpPopup').style.display = 'none';
+        });
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") {
+                document.getElementById('helpPopup').style.display = 'none';
+            }
+        });
+    }
+}
+
