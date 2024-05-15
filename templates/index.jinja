@@ -3,12 +3,36 @@ Index page, the "default" page when you visit "http://localhost/"
  without any URL parameters at the end
  -->
 {% extends 'base.jinja' %}
+
+
 {% block content %}
+
 <div class="container mt-5">
-  <h1 class="text-center mb-4">Hello! Welcome to the site!</h1>
-  <div class="d-flex justify-content-center">
-    <p class="mx-2"><a href="{{ url_for('signup') }}" class="btn btn-primary">Sign Up</a></p>
-    <p class="mx-2"><a href="{{ url_for('login') }}" class="btn btn-secondary">Login</a></p>
-  </div>
+    <h1 class="text-center mb-4">Welcome to the WebChats and Forms site!</h1>
+
+
+
+    <div class="d-flex justify-content-center">
+        <p class="mx-2">
+  <a href="{{ url_for('signup') }}" class="btn btn-primary btn-lg glow-button signup-glow">
+    Sign Up
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+  </a>
+</p>
+<p class="mx-2">
+  <a href="{{ url_for('login') }}" class="btn btn-secondary btn-lg glow-button login-glow">
+    Login
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+  </a>
+</p>
+
+    </div>
 </div>
+
 {% endblock %}

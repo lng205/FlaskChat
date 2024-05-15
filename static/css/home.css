@@ -6,7 +6,7 @@
 
 .friend-item:hover {
     background-color: #f0f0f0; /* Light grey background on hover */
-    color: #007bff; /* Change text color on hover */
+    color: #fa7dff; /* Change text color on hover */
 }
 
 #messageBox {
@@ -18,22 +18,31 @@
 .friend-item span {
     color: red;
 }
+.home-icon {
+    height: 20px;
+    vertical-align: baseline;
+    margin-right: 2px;
+}
+.home-page-text {
+    font-weight: bold;
+}
 .members-container {
-    display: flex;      
+    display: flex;
     overflow-x: auto;     /* if exceed it enable scrall */
-    align-items: center;  
+    align-items: center;
     padding: 10px;
-    white-space: nowrap;  
-    background: #f8f9fa;  
-    border-radius: 5px;   
+    white-space: nowrap;
+    background: #f8f9fa;
+    border-radius: 5px;
 }
 
 .members-container span {
     margin-right: 15px;
     padding: 5px 10px;
-    background: #e1e1e1;  
-    border-radius: 5px;   
+    background: #e1e1e1;
+    border-radius: 5px;
 }
+
 
 .help-popup {
     position: fixed;

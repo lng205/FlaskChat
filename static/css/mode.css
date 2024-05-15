@@ -1,0 +1,93 @@
+.dark-mode-toggle-container {
+    position: fixed;
+    top: 10px; /* 10px from the top */
+    left: 50%; /* Centered horizontally */
+    transform: translateX(-50%); /* Shift it back by half of its width to truly center it */
+    z-index: 1050; /* High z-index to ensure it's above other content */
+}
+
+.btn-outline-secondary {
+    background-color: transparent;
+    border: 1px solid #ccc;
+    color: var(--text-color);
+}
+
+.dark-mode .btn-outline-secondary {
+    border: 1px solid #fff; /* 暗模式下使用白色边框 */
+}
+
+
+:root {
+    --bg-color: #FFFFFF;  /* Light mode background */
+    --text-color: #000000; /* Light mode text */
+    --link-color: #3737fd;
+    --placeholder-color: #474747;
+    --form-bg-color: #ffffff;
+    --form-text-color: #000000;
+}
+
+.dark-mode {
+    --bg-color: #333333;  /* Dark mode background */
+    --text-color: #FFFFFF; /* Dark mode text */
+    --link-color: #96f2ff; /* Dark mode link color */
+    --placeholder-color: #ffffff; /* 尝试使用更亮的颜色 */
+    --form-bg-color: #8b8b8b; /* 暗模式下的背景色 */
+    --form-text-color: #ffffff; /* 暗模式下的文字色 */
+
+}
+.form-control {
+    background-color: var(--form-bg-color);
+    color: var(--form-text-color);
+}
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+a {
+    color: var(--link-color);
+}
+
+input::placeholder, textarea::placeholder {
+    color: var(--placeholder-color);
+}
+
+
+
+
+.dark-mode .custom-background {
+    background-color: var(--bg-color);
+}
+.dark-mode .custom-background {
+    background-color: var(--bg-color);
+}
+.dark-mode .nav-link {
+    color: #ffffff;
+}
+.dark-mode a:hover {
+    color: var(--link-color);
+}
+.home-page-text {
+    color: #000;
+}
+
+.dark-mode .home-page-text {
+    color: #fff;
+}
+
+.article-content {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    background-color: #FFFFFF;
+    color: #000000;
+}
+.dark-mode .list-group-item {
+    background-color: #828282;  /* 深灰色背景 */
+}
+.dark-mode .article-content {
+    background-color: #333333; /* 暗模式下的背景色 */
+    color: #FFFFFF; /* 暗模式下的文字色 */
+}
+.dark-mode

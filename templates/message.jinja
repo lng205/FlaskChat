@@ -1,65 +1,73 @@
 {% extends 'base.jinja' %}
 {% block content %}
-<link rel="stylesheet" href="/static/css/message.css">
+<link rel="stylesheet" href="/static/css/home.css">
 
 <div class="container">
-  <!-- navbar -->
-  <nav class="navbar border-bottom mb-4">
-    <div class="container-fluid ps-0">
-      <a class="navbar-brand" href="{{ url_for('message') }}">Piazza</a>
-      <ul class="nav nav-underline justify-content-end">
-        <li class="nav-item">
-          <a class="nav-link active" href="{{ url_for('message') }}">Message</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('article') }}">Article</a>
-        </li>
-        {% if user.account_type == "admin" or user.account_type == "academic" or user.account_type == "administrative" %}
+    <nav class="navbar border-bottom mb-4">
+        <div class="container-fluid ps-0">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+               <img src="static/images/10003.png" alt="Home Icon" class="home-icon">
+                    <span class="home-page-text">CHAT AND FORMS APP</span></a>
+            <ul class="nav nav-underline justify-content-end">
+                <li class="nav-item">
+
+                    <a class="nav-link active" href="{{ url_for('message') }}">
+                       <img src="static/images/chat.png" alt="Message" class="home-icon">
+                        Message</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('article') }}">
+                        <img src="static/images/blog.png" alt="Article" class="home-icon" >Article</a>
+                </li>
+                {% if user.account_type == "admin" or user.account_type == "academic" or user.account_type == "administrative" %}
         <li class="nav-item">
           <a class="nav-link" href="{{ url_for('admin') }}">Manage</a>
-        </li>
-        {% endif %}
-      </ul>
-    </div>
-  </nav>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
 
-  <!-- title -->
-  <nav class="navbar border-bottom">
-    <div class="container ps-0 align-items-end">
-      <h3>Message App</h3>
-      <div>
-        <span>Username: {{ user.username }}</span>
+    <nav class="navbar border-bottom">
+        <div class="container ps-0 align-items-end">
+            <h3>Message App</h3>
+            <div>
+                <span>Username: {{ user.username }}</span>
         <span class="badge text-bg-secondary">{{ user.account_type }}</span>
         <span class="badge text-bg-secondary the_mute_status">{% if user.mute_status %}muted{% endif %}</span>
-      </div>
-    </div>
-  </nav>
+            </div>
+        </div>
+    </nav>
 <div class="mt-3">
-    <h4 class="mb-2">Current Room Members:</h4>
+    <h5 class="mb-2">Rooms: <span id="getcurrentroom"> </span>   </h5>
+    <h5 class="mb-2">Current Room Members:</h5>
     <div id="roomMembers" class="members-container">
         {# it will be append here!!! #}
     </div>
 </div>
+    <div class="row mt-5">
+        <div class="col-8">
+            <div class="container border" id="messageBox"></div>
 
-
-  <!-- content -->
-  <div class="row mt-5">
-    <div class="col-8">
-      <div class="container border" id="messageBox"></div>
-
-      <form class="input-group" id="startChatForm">
-        <input type="text" class="form-control" placeholder="username" {{ 'disabled' if user.mute_status }}>
+            <form class="input-group" id="startChatForm">
+                <input type="text" class="form-control" placeholder="username" {{ 'disabled' if user.mute_status }}>
         <button class="btn btn-outline-primary" {{ 'disabled' if user.mute_status }}>Chat</button>
-      </form>
+            </form>
 
-      <form class="input-group d-none" id="messageInputForm">
-        <input type="text" class="form-control" placeholder="message" {{ 'disabled' if user.mute_status }}>
+            <form class="input-group d-none" id="messageInputForm">
+                <input type="text" class="form-control" placeholder="message" {{ 'disabled' if user.mute_status }}>
         <button class="btn btn-outline-secondary" {{ 'disabled' if user.mute_status }}>Send</button>
-        <button type="button" id="leaveButton" class="btn btn-outline-danger">Leave Room</button>
-      </form>
-    </div>
+                <button type="button" id="leaveButton" class="btn btn-outline-danger">Leave Room</button>
+            </form>
+        </div>
 
-    <div class="col-4">
+        <div class="col-4">
+        <h3>All Rooms</h3>
+        <ul class="mb-4 ps-0" id="getrooms_all">
+            {# it will be append here!!! #}
+
+        </ul>
+
       <h3>Current Friends</h3>
       <ul class="mb-4 ps-0">
         {% for friend in user.friends %}
@@ -84,7 +92,6 @@
             <button id="closePopup" class="btn btn-secondary help-close-b">Click to EXIT</button>
         </div>
         </button>
-       
         <ul class="list-group list-group-flush">
           {% for friend in user.pending_friends %}
           <li class="list-group-item d-flex justify-content-between">
@@ -102,17 +109,16 @@
           {% endfor %}
         </ul>
       </div>
-
-      <div>
-        <h3>Add New Friend</h3>
-        <div class="alert d-none" id="addFriendAlert"></div>
-        <form class="input-group" id="addFriendForm">
-          <input type="text" name="friend" class="form-control" placeholder="Enter username">
-          <button class="btn btn-primary">Add</button>
-        </form>
-      </div>
+            <div>
+                <h3>Add New Friend</h3>
+                <div class="alert d-none" id="addFriendAlert"></div>
+                <form class="input-group" id="addFriendForm">
+                    <input type="text" name="friend" class="form-control" placeholder="Enter username">
+                    <button class="btn btn-primary">Add</button>
+                </form>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 

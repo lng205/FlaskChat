@@ -19,18 +19,25 @@ room = Room()
 
 user_sessions = {}
 
-
 # when the client connects to a socket
 # this event is emitted when the io() function is called in JS
 @socketio.on("connect")
 def connect():
+    
     username = request.cookies.get("username")
     room_id = request.cookies.get("room_id")
+    emit("current_room", (room_id))
+    all_rooms = room.get_all_rooms()
+    emit("get_all_rooms", (all_rooms), to=room_id)
     if room_id and username:
         join_room(int(room_id))
-        emit("incoming", (f"{username} has connected", "green"), to=int(room_id))
+        print("herererererer")
+        room.add_room_member(room_id, username)
         members = room.get_room_members(room_id)
-        emit("update_members", {"members": members}, to=room_id)
+        print("Room members:", members)
+        emit("update_members", {"members": members}, to=int(room_id))
+        
+        emit("incoming", (f"{username} has connected", "green"), to=int(room_id))
         # emit message history
         with db.Session(db.engine) as session:
             messages = session.scalars(
@@ -40,8 +47,9 @@ def connect():
                 emit("incoming", (f"{message.sender}: {message.message}", "grey"))
 
     # Map the username to the socket session id
+    all_rooms = room.get_all_rooms()
+    emit("get_all_rooms", all_rooms, to=room_id)
     user_sessions[username] = request.sid
-
     with db.Session(db.engine) as session:
         user = session.get(db.User, username)
         for friend in user.friends:
@@ -88,8 +96,6 @@ def disconnect():
 @socketio.on("send")
 def send(username, message, room_id):
     emit("incoming", (f"{username}: {message}"), to=room_id)
-    members = room.get_room_members(room_id)
-    emit("update_members", {"members": members}, to=room_id)
     # save the message to the database
     db.save_message(username, message, room_id)
 
@@ -108,12 +114,17 @@ def join(sender_name, receiver_name):
         return "Unknown sender!"
 
     room_id = room.get_room_id(receiver_name)
+    emit("current_room", (room_id))
 
     # if the user is already inside of a room
     if room_id is not None:
+        #emit current_room
 
-        room.join_room(sender_name, room_id)
+        room.join_room(sender, room_id)
         join_room(room_id)
+        emit("current_room", (room_id))
+        all_rooms = room.get_all_rooms()
+        emit("get_all_rooms", all_rooms, to=room_id)
         # emit to everyone in the room except the sender
         emit(
             "incoming",
@@ -136,21 +147,29 @@ def join(sender_name, receiver_name):
             )
             for message in messages:
                 emit("incoming", (f"{message.sender}: {message.message}", "grey"), to=room_id)
-        # update the room member
         room.add_room_member(room_id, sender_name)
         room.add_room_member(room_id, receiver_name)
         members = room.get_room_members(room_id)
-        print(members)
         emit("update_members", {"members": members}, to=room_id)
+        print(members)
+        
+        
         return room_id
     else:
         room.add_room_member(room_id, receiver_name)
         room.add_room_member(room_id, sender_name)
+        members = room.get_room_members(room_id)
+        emit("update_members", {"members": members}, to=room_id)
     # if the user isn't inside of any room,
     # perhaps this user has recently left a room
     # or is simply a new user looking to chat with someone
+    members = room.get_room_members(room_id)
+    emit("update_members", {"members": members}, to=room_id)
     room_id = room.create_room(sender_name, receiver_name)
+    emit("current_room", (room_id))
     join_room(room_id)
+    all_rooms = room.get_all_rooms()
+    emit("get_all_rooms", all_rooms, to=room_id)
     emit(
         "incoming",
         (
@@ -169,7 +188,9 @@ def leave(username, room_id):
     room.delete_room_member(room_id, username)
     members = room.get_room_members(room_id)
     emit("update_members", {"members": members}, to=room_id)
-    leave_room(room_id)
+    emit("current_room", ([]))
+    all_rooms = room.get_all_rooms()
+    emit("get_all_rooms", all_rooms, to=room_id)
     room.leave_room(username)
 
 

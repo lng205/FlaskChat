@@ -1,12 +1,14 @@
 {% extends 'base.jinja' %}
 {% block content %}
-<link rel="stylesheet" href="/static/css/article.css">
+{#<link rel="stylesheet" href="/static/css/article.css">#}
 
 <div class="container">
   <!-- navbar -->
   <nav class="navbar border-bottom mb-4">
     <div class="container-fluid ps-0">
-      <a class="navbar-brand" href="{{ url_for('message') }}">Piazza</a>
+      <a class="navbar-brand" href="{{ url_for('index') }}">
+               <img src="static/images/10003.png" alt="Home Icon" class="home-icon">
+                    <span class="home-page-text">CHAT AND FORMS APP</span></a>
       <ul class="nav nav-underline justify-content-end">
         <li class="nav-item">
           <a class="nav-link" href="{{ url_for('message') }}">Message</a>
@@ -30,8 +32,7 @@
       <div>
         <span>Username: {{ user.username }}</span>
         <span class="badge text-bg-secondary">{{ user.account_type }}</span>
-        <span class="badge text-bg-secondary">{% if user.mute_status %}muted{% endif %}</span>
-        
+          <span class="badge text-bg-secondary">{% if user.mute_status %}muted{% endif %}</span>
       </div>
     </div>
   </nav>
@@ -48,7 +49,7 @@
         <p>{{ article.content }}</p>
       </div>
       <div class="container text-muted">
-        <small>
+         <small class="small-name">
           {{ article.author }}
           <span class="badge text-bg-secondary">{{ article.author_obj.account_type }}</span>
         </small>
@@ -63,16 +64,15 @@
         {% if user.mute_status %}
         <div class="alert alert-warning" id="muteWarning">You have been muted!</div>
         {% endif %}
-        <div class="alert d-none" id="newArticleAlert"></div>
-        <label class="form-label">Write a new article</label>
-        <input type="text" class="form-control" id="newArticleTitle" placeholder="Title" required {{ 'disabled' if user.mute_status }}>
+      <div class="alert d-none" id="newArticleAlert"></div>
+      <label class="form-label">Write a new article</label>
+      <input type="text" class="form-control" id="newArticleTitle" placeholder="Title" required {{ 'disabled' if user.mute_status }}>
         <textarea class="form-control mt-2" id="newArticleContent" rows="3" required {{ 'disabled' if user.mute_status }}></textarea>
         <div class="d-flex justify-content-end">
             <button type="submit" class="btn btn-primary" {{ 'disabled' if user.mute_status }}>Submit</button>
-        </div>
+      </div>
     </div>
-</form>
-
+  </form>
 </div>
 
 <script src="/static/js/article.js"></script>

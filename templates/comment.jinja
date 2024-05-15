@@ -2,43 +2,47 @@
 
 {% block content %}
 <div class="container">
-  <!-- navbar -->
-  <nav class="navbar border-bottom mb-4">
-    <div class="container-fluid ps-0">
-      <a class="navbar-brand" href="{{ url_for('message') }}">Piazza</a>
-      <ul class="nav nav-underline justify-content-end">
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('message') }}">Message</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link active" href="{{ url_for('article') }}">Article</a>
-        </li>
-        {% if user.account_type == "admin" or user.account_type == "academic" or user.account_type == "administrative" %}
+
+    <!-- navbar -->
+    <nav class="navbar border-bottom mb-4">
+      <div class="container-fluid ps-0">
+        <a class="navbar-brand" href="{{ url_for('index') }}">
+               <img src="static/images/10003.png" alt="Home Icon" class="home-icon">
+                    <span class="home-page-text">CHAT AND FORMS APP</span></a>
+        <ul class="nav nav-underline justify-content-end">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('message') }}">Message</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="{{ url_for('article') }}">Article</a>
+          </li>
+          {% if user.account_type == "admin" or user.account_type == "academic" or user.account_type == "administrative" %}
         <li class="nav-item">
           <a class="nav-link" href="{{ url_for('admin') }}">Manage</a>
-        </li>
-        {% endif %}
-      </ul>
-    </div>
-  </nav>
-
-  <!-- title -->
-  <nav class="navbar border-bottom">
-    <div class="container ps-0 align-items-end">
-      <h3>Comment</h3>
-      <div>
-        <span>Username: {{ user.username }}</span>
-        <span class="badge text-bg-secondary">{{ user.account_type }}</span>
+          </li>
+          {% endif %}
+        </ul>
       </div>
-    </div>
-  </nav>
+    </nav>
 
-  <form class="container py-4 border-bottom ps-0" name="{{ article.id}}">
+    <!-- title -->
+    <nav class="navbar border-bottom">
+      <div class="container ps-0 align-items-end">
+        <h3>Comment</h3>
+        <div>
+          <span>Username: {{ user.username }}</span>
+          <span class="badge text-bg-secondary">{{ user.account_type }}</span>
+        </div>
+      </div>
+    </nav>
+
+      <form class="container py-4 border-bottom ps-0" name="{{ article.id}}">
     <div class="alert d-none" id="editArticleAlert"></div>
-    <div class="text-muted d-flex justify-content-between">
-      <small>{{ article.author }}
+      <div class="text-muted d-flex justify-content-between">
+        <small class="small-name">{{ article.author }}
         <span class="badge text-bg-secondary">{{ user.account_type }}</span>
       </small>
+
       <div>
         {% if user.account_type != "student" or user == article.author_obj %}
         <button class="btn border btn-sm btn-edit">✏️</button>
@@ -47,23 +51,22 @@
         <button class="btn border btn-sm btn-delete-article">❌</button>
         {% endif %}
       </div>
-    </div>
-    <h3 class="title">{{ article.title }}</h3>
-    <p>{{ article.content }}</p>
-  </form>
-
-  <div class="container mt-5">
-    <div class="alert d-none" id="deleteCommentAlert"></div>
+      </div>
+      <h3 class="title">{{ article.title }}</h3>
+      <p>{{ article.content }}</p>
+      </form>
+<div class="container mt-5">
+  <div class="alert d-none" id="deleteCommentAlert"></div>
     {% for comment in article.comment_objs %}
     <div class="card mb-2">
       <div class="card-body">
-        <div class="d-flex justify-content-between">
+          <div class="d-flex justify-content-between">
           <div>
-            <span class="text-muted">{{ comment.author }}</span>
-            <span class="badge text-bg-secondary">{{ comment.author_obj.account_type }}</span>
-          </div>
+        <span class="text-muted">{{ comment.author }}</span>
+        <span class="badge text-bg-secondary">{{ comment.author_obj.account_type }}</span>
+              </div>
           {% if user.account_type != "student" %}
-          <button class="btn border btn-sm btn-delete-comment" name="{{ comment.id }}">❌</button>
+           <button class="btn border btn-sm btn-delete-comment" name="{{ comment.id }}">❌</button>
           {% endif %}
         </div>
         <p class="mb-1">{{ comment.content }}</p>
@@ -73,7 +76,7 @@
   </div>
 
 
-  <!-- write a new comment -->
+ <!-- write a new comment -->
   <form id="newCommentForm">
     <div class="mt-5">
       {% if user.mute_status %}
@@ -89,5 +92,6 @@
   </form>
 </div>
 
-<script src="/static/js/comment.js"></script>
+
+    <script src="/static/js/comment.js"></script>
 {% endblock %}

@@ -2,59 +2,60 @@
 {% block content %}
 
 <div class="container">
-  <!-- navbar -->
-  <nav class="navbar border-bottom mb-4">
-    <div class="container-fluid ps-0">
-      <a class="navbar-brand" href="{{ url_for('message') }}">Piazza</a>
-      <ul class="nav nav-underline justify-content-end">
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('message') }}">Message</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('article') }}">Article</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link active" href="{{ url_for('admin') }}">Manage</a>
-        </li>
-      </ul>
-    </div>
-  </nav>
+    <!-- navbar -->
+    <nav class="navbar border-bottom mb-4">
+        <div class="container-fluid ps-0">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+{#                <img src="static/images/10003.png" alt="Home Icon" class="home-icon">#}
+                    <span class="home-page-text">CHAT AND FORMS APP</span></a>
+            <ul class="nav nav-underline justify-content-end">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('message') }}">Message</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('article') }}">Article</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="{{ url_for('admin') }}">Manage</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
 
-  <!-- title -->
-  <nav class="navbar border-bottom">
-    <div class="container ps-0">
-      <h3>Admin Page</h3>
-    </div>
-  </nav>
-  <!-- content -->
-  <div class="alert alert-info d-none"></div>
-  <div class="container mt-3">
-    {% for user in users %}
-    <div class="row">
-      <div class="col-6 d-flex align-items-center border rounded">
-        <span class="me-2">{{ user.username }}</span>
+    <!-- title -->
+    <nav class="navbar border-bottom">
+        <div class="container ps-0">
+            <h3>Admin Page</h3>
+        </div>
+    </nav>
+
+    <!-- content -->
+    <div class="alert alert-info d-none"></div>
+    <div class="container mt-3">
+        {% for user in users %}
+        <div class="row">
+            <div class="col-6 d-flex align-items-center border rounded">
+                <span class="me-2">{{ user.username }}</span>
         <span class="badge text-bg-secondary">{{ user.account_type }}</span>
         {% if user.account_type not in ["academic", "administrative", "admin"] %}
-        <button class="btn btn-danger btn-sm toggle-mute"
-        data-username="{{ user.username }}"
-        data-is-muted="{{ user.mute_status }}">
-    {{ 'Unmute' if user.mute_status else 'Mute' }}
-</button>
-{% endif %}
-      </div>
-      <div class="col-6">
-        <div class="input-group" name="{{ user.username }}">
-          <select class="form-select">
-            <option value="student">student</option>
-            <option value="academic">academic</option>
-            <option value="administrative">administrative</option>
-            <option value="admin">admin</option>
-          </select>
-          <button class="btn btn-outline-secondary change-role" type="button">Change</button>
+        <button class="btn btn-danger btn-sm toggle-mute" data-username="{{ user.username }}" data-is-muted="{{ user.mute_status }}">
+             {{ 'Unmute' if user.mute_status else 'Mute' }}
+        </button>
+            {% endif %}
+            </div>
+            <div class="col-6">
+                 <div class="input-group" name="{{ user.username }}">
+                    <select class="form-select">
+                        <option value="student">student</option>
+                        <option value="academic">academic</option>
+                        <option value="administrative">administrative</option>
+                        <option value="admin">admin</option>
+                    </select>
+                    <button class="btn btn-outline-secondary change-role" type="button">Change</button>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-    {% endfor %}
- 
+        {% endfor %}
+
 <script src="/static/js/admin.js"></script>
 {% endblock %}

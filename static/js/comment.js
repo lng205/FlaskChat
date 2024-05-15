@@ -18,7 +18,7 @@ $(document).on('click', '.btn-edit', function (event) {
     const title = container.find('.title');
     const content = container.find('p');
     const deleteBtn = container.find('.btn-delete');
-    
+
     title.replaceWith(`<input type="text" class="form-control" value="${title.text()}" required>`);
     content.replaceWith(`<textarea class="form-control" rows="3" required>${content.text()}</textarea>`);
     deleteBtn.addClass('d-none');
@@ -70,7 +70,6 @@ $('.btn-delete-comment').click(function (event) {
         }
     });
 });
-
 function toggleAlert(selector, message, isSuccess) {
     $(selector)
         .text(message)

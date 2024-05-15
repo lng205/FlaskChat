@@ -11,7 +11,7 @@ import secrets
 import bcrypt
 import jwt
 import datetime
-
+from flask_cors import CORS
 # import logging
 
 # this turns off Flask Logging, uncomment this to turn off Logging
@@ -19,17 +19,17 @@ import datetime
 # log.setLevel(logging.ERROR)
 
 app = Flask(__name__)
-
+CORS(app)
 # secret key used to sign the session cookie
 app.config["SECRET_KEY"] = secrets.token_hex()
-socketio = SocketIO(app)
+socketio = SocketIO(app,cors_allowed_origins="*")
 
 # don't remove this!!
 import socket_routes
 
 # CSP = "default-src 'self'; script-src 'self';"
-
-
+#
+#
 # @app.after_request
 # def add_security_headers(response):
 #     response.headers["Content-Security-Policy"] = CSP
@@ -97,7 +97,7 @@ def signup_user():
     )
 
 
-# # handler when a "404" error happens
+# handler when a "404" error happens
 # @app.errorhandler(404)
 # def page_not_found(_):
 #     return render_template("404.jinja"), 404
@@ -168,20 +168,6 @@ def edit():
     msg = db.edit_article(username, id, title, content)
     return jsonify({"msg": msg})
 
-
-@app.route("/delete", methods=["POST"])
-def delete():
-    username = request.cookies.get("username")
-    # token = request.cookies.get("auth_token")
-    # if not verify_token(token, username):
-    #     abort(401)
-
-    type = request.json.get("type")
-    id = request.json.get("id")
-    msg = db.delete(username, type, id)
-    return jsonify({"msg": msg})
-
-
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
     username = request.cookies.get("username")
@@ -198,15 +184,24 @@ def admin():
         account_type = request.json.get("type")
         mute_status = request.json.get("muteStatus")
         print(username, account_type, mute_status)
-        msg = "No changes made." 
+        msg = "No changes made."
         if account_type is not None:
             msg = db.set_account_type(username, account_type)
         if mute_status is not None:
             msg = db.change_mute_status(username, mute_status)
 
         return jsonify({"msg": msg})
+@app.route("/delete", methods=["POST"])
+def delete():
+    username = request.cookies.get("username")
+    # token = request.cookies.get("auth_token")
+    # if not verify_token(token, username):
+    #     abort(401)
 
-
+    type = request.json.get("type")
+    id = request.json.get("id")
+    msg = db.delete(username, type, id)
+    return jsonify({"msg": msg})
 
 def create_token(username):
     return jwt.encode(
@@ -229,7 +224,6 @@ def verify_token(token, username):
         return False
 
 
-if __name__ == "__main__":
-    socketio.run(
-        app, ssl_context=("ssl/localhost.crt", "ssl/localhost.key"), debug=True
-    )
+
+if __name__ == '__main__':
+    socketio.run(app, ssl_context=('./cert/mydomain.crt', './cert/mydomain.key'))

@@ -15,13 +15,12 @@ $(document).ready(function() {
         const button = $(this);
         const username = button.data('username');
         const isCurrentlyMuted = button.data('is-muted');
-
         axios.post('/admin', {
             username: username,
-            muteStatus: !isCurrentlyMuted  // 发送反转后的状态
+            muteStatus: !isCurrentlyMuted
         }).then(response => {
-            button.data('is-muted', !isCurrentlyMuted);  // 更新data-is-muted属性
-            button.text(isCurrentlyMuted ? 'Mute' : 'Unmute');  // 更新按钮文本
+            button.data('is-muted', !isCurrentlyMuted);
+            button.text(isCurrentlyMuted ? 'Mute' : 'Unmute');
             $('.alert').text(response.data.msg).removeClass('d-none');
         }).catch(error => {
             console.error('Error updating mute status:', error);

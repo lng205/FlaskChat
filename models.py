@@ -31,12 +31,12 @@ class PendingFriendRequest(Base):
 # model to store user information
 class User(Base):
     __tablename__ = "user"
-    
+
     # looks complicated but basically means
     # I want a username column of type string,
     # and I want this column to be my primary key
     # then accessing john.username -> will give me some data of type string
-    # in other words we've mapped the username Python object property to an SQL column of type String 
+    # in other words we've mapped the username Python object property to an SQL column of type String
     username: Mapped[str] = mapped_column(primary_key=True)
     password: Mapped[str]
     account_type: Mapped[str] = mapped_column(default="student")
@@ -87,10 +87,12 @@ class Comment(Base):
 # stateful counter used to generate the room id
 class Counter():
     def __init__(self):
-        self.counter = 0
+        self.counter = 1
     
     def get(self):
         self.counter += 1
+        return self.counter
+    def get_current(self):
         return self.counter
 
 # Room class, used to keep track of which username is in which room
@@ -101,9 +103,16 @@ class Room():
         # for example self.dict["John"] -> gives you the room id of 
         # the room where John is in
         self.dict: Dict[str, int] = {}
-        #store room members !!! here
+        # store room members !!! here
         self.members: Dict[int, List[str]] = {}
+
     def create_room(self, sender: str, receiver: str) -> int:
+        #if self.counter room members are empty use this room
+        if self.members.get(self.counter.get_current()) is None:
+            room_id = self.counter.get_current()
+            self.dict[sender] = room_id
+            self.dict[receiver] = room_id
+            return room_id
         room_id = self.counter.get()
         self.dict[sender] = room_id
         self.dict[receiver] = room_id
@@ -122,17 +131,26 @@ class Room():
         if user not in self.dict.keys():
             return None
         return self.dict[user]
+    
+    def get_room_members(self, room_id: int):
+        return self.members.get(room_id, [])
+
     def add_room_member(self, room_id: int, member: str):
         if room_id not in self.members.keys():
             self.members[room_id] = []
-        #check duplicate
+        # check duplicate
         if member not in self.members[room_id]:
             self.members[room_id].append(member)
+
     def get_room_members(self, room_id: int):
         return self.members.get(room_id, [])
+
     def delete_room_member(self, room_id: int, member: str):
         if room_id in self.members.keys():
             self.members[room_id].remove(member)
             if len(self.members[room_id]) == 0:
                 del self.members[room_id]
+    
+    def get_all_rooms(self):
+        return list(set(self.dict.values()))
     
