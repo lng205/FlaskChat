@@ -40,7 +40,7 @@ class User(Base):
     username: Mapped[str] = mapped_column(primary_key=True)
     password: Mapped[str]
     account_type: Mapped[str] = mapped_column(default="student")
-
+    mute_status: Mapped[bool] = mapped_column(default=False)
     friends: Mapped[List["User"]] = relationship(
         "User",
         secondary=Friendship.__tablename__,

@@ -13,9 +13,9 @@
         <li class="nav-item">
           <a class="nav-link active" href="{{ url_for('article') }}">Article</a>
         </li>
-        {% if user.account_type == "admin" %}
+        {% if user.account_type == "admin" or user.account_type == "academic" or user.account_type == "administrative" %}
         <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('admin') }}">admin</a>
+          <a class="nav-link" href="{{ url_for('admin') }}">Manage</a>
         </li>
         {% endif %}
       </ul>
@@ -76,11 +76,14 @@
   <!-- write a new comment -->
   <form id="newCommentForm">
     <div class="mt-5">
+      {% if user.mute_status %}
+        <div class="alert alert-warning">You have been muted!</div>
+           {% endif %}
       <div class="alert d-none" id="newCommentAlert"></div>
       <label class="form-label">Write a new comment</label>
-      <textarea class="form-control mt-2" id="newCommentContent" rows="3" required></textarea>
-      <div class="d-flex justify-content-end">
-        <button type="submit" class="btn btn-primary">Submit</button>
+      <textarea class="form-control mt-2" id="newCommentContent" rows="3" required {{ 'disabled' if user.mute_status }}></textarea>
+        <div class="d-flex justify-content-end">
+        <button type="submit" class="btn btn-primary" {{ 'disabled' if user.mute_status }}>Submit</button>
       </div>
     </div>
   </form>

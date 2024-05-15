@@ -27,13 +27,13 @@ socketio = SocketIO(app)
 # don't remove this!!
 import socket_routes
 
-CSP = "default-src 'self'; script-src 'self';"
+# CSP = "default-src 'self'; script-src 'self';"
 
 
-@app.after_request
-def add_security_headers(response):
-    response.headers["Content-Security-Policy"] = CSP
-    return response
+# @app.after_request
+# def add_security_headers(response):
+#     response.headers["Content-Security-Policy"] = CSP
+#     return response
 
 
 @app.route("/")
@@ -196,7 +196,13 @@ def admin():
     else:
         username = request.json.get("username")
         account_type = request.json.get("type")
-        msg = db.set_account_type(username, account_type)
+        mute_status = request.json.get("muteStatus")
+        msg = "No changes made." 
+        if account_type is not None:
+            msg = db.set_account_type(username, account_type)
+        if mute_status is not None:
+            msg = db.change_mute_status(username, mute_status)
+
         return jsonify({"msg": msg})
 
 

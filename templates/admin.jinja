@@ -14,7 +14,7 @@
           <a class="nav-link" href="{{ url_for('article') }}">Article</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link active" href="{{ url_for('admin') }}">admin</a>
+          <a class="nav-link active" href="{{ url_for('admin') }}">Manage</a>
         </li>
       </ul>
     </div>
@@ -26,7 +26,6 @@
       <h3>Admin Page</h3>
     </div>
   </nav>
-
   <!-- content -->
   <div class="alert alert-info d-none"></div>
   <div class="container mt-3">
@@ -35,16 +34,22 @@
       <div class="col-6 d-flex align-items-center border rounded">
         <span class="me-2">{{ user.username }}</span>
         <span class="badge text-bg-secondary">{{ user.account_type }}</span>
+        {% if user.account_type == "student" %}
+        <button class="btn btn-danger btn-sm toggle-mute" data-username="{{ user.username }}"
+          data-is-muted="{{ 'true' if user.mute_status else 'false' }}">
+          {{ 'Unmute' if user.mute_status else 'Mute' }}
+        </button>
+        {% endif %}
       </div>
       <div class="col-6">
-        <div class="input-group" name="{{ user.username }}">
+        <div class="input-group">
           <select class="form-select">
             <option value="student">student</option>
             <option value="academic">academic</option>
             <option value="administrative">administrative</option>
             <option value="admin">admin</option>
           </select>
-          <button class="btn btn-outline-secondary" type="button">Change</button>
+          <button class="btn btn-outline-secondary btn-change" data-username="{{ user.username }}">Change</button>
         </div>
       </div>
     </div>

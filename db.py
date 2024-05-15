@@ -101,9 +101,17 @@ def edit_article(editor: str, article_id: int, title: str, content: str):
         editor_user_type = session.get(User, editor).account_type
         if article.author != editor and editor_user_type == "student":
             return "Permission Denied!"
-        
+
         article.title = title
         article.content = content
+        session.commit()
+        return "Success!"
+
+
+def change_mute_status(username: str, mute_status: bool):
+    with Session(engine) as session:
+        user = session.get(User, username)
+        user.mute_status = mute_status
         session.commit()
         return "Success!"
 
@@ -113,11 +121,11 @@ def delete(editor: str, type: str, data_id: int):
         editor_user_type = session.get(User, editor).account_type
         if editor_user_type == "student":
             return "Permission Denied!"
-        
+
         if type == "article":
             data = session.get(Article, data_id)
         else:
-            data = session.get(Comment, data_id)            
+            data = session.get(Comment, data_id)
         session.delete(data)
         session.commit()
         return "Success!"

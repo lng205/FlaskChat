@@ -14,9 +14,9 @@
         <li class="nav-item">
           <a class="nav-link" href="{{ url_for('article') }}">Article</a>
         </li>
-        {% if user.account_type == "admin" %}
+        {% if user.account_type != "student" %}
         <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('admin') }}">admin</a>
+          <a class="nav-link" href="{{ url_for('admin') }}">Manage</a>
         </li>
         {% endif %}
       </ul>
@@ -30,6 +30,7 @@
       <div>
         <span>Username: {{ user.username }}</span>
         <span class="badge text-bg-secondary">{{ user.account_type }}</span>
+        <span class="badge text-bg-secondary the_mute_status">{% if user.mute_status %}muted{% endif %}</span>
       </div>
     </div>
   </nav>
@@ -40,13 +41,13 @@
       <div class="container border" id="messageBox"></div>
 
       <form class="input-group" id="startChatForm">
-        <input type="text" class="form-control" placeholder="username">
-        <button class="btn btn-outline-primary">Chat</button>
+        <input type="text" class="form-control" placeholder="username" {{ 'disabled' if user.mute_status }}>
+        <button class="btn btn-outline-primary" {{ 'disabled' if user.mute_status }}>Chat</button>
       </form>
 
       <form class="input-group d-none" id="messageInputForm">
-        <input type="text" class="form-control" placeholder="message">
-        <button class="btn btn-outline-secondary">Send</button>
+        <input type="text" class="form-control" placeholder="message" {{ 'disabled' if user.mute_status }}>
+        <button class="btn btn-outline-secondary" {{ 'disabled' if user.mute_status }}>Send</button>
         <button type="button" id="leaveButton" class="btn btn-outline-danger">Leave Room</button>
       </form>
     </div>
