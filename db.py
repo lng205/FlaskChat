@@ -137,3 +137,20 @@ def add_comment(author: str, article_id: int, content: str):
         session.add(comment)
         session.commit()
         return "Success!"
+
+
+def get_room_id(user1, user2):
+    with Session(engine) as session:
+        # Attempt to find a room with either combination of users
+        room_id = session.scalar(
+            select(Room.id).filter_by(user1=user1, user2=user2)
+        ) or session.scalar(select(Room.id).filter_by(user1=user2, user2=user1))
+
+        # If no room is found, create a new one
+        if room_id is None:
+            room = Room(user1=user1, user2=user2)
+            session.add(room)
+            session.commit()
+            room_id = room.id
+
+        return room_id
