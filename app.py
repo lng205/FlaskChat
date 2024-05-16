@@ -103,12 +103,22 @@ def page_not_found(_):
     return render_template("404.jinja"), 404
 
 
+# exempt_routes = ["/login", "/signup", "/static"]
+
+# @app.before_request
+# def check_auth():
+#     for route in exempt_routes:
+#         if request.path.startswith(route):
+#             return
+#     username = request.cookies.get("username")
+#     token = request.cookies.get("auth_token")
+#     if not verify_token(token, username):
+#         abort(401)
+
+
 @app.route("/message")
 def message():
     username = request.cookies.get("username")
-    # token = request.cookies.get("auth_token")
-    # if not verify_token(token, username):
-    #     abort(401)
 
     with db.Session(db.engine) as session:
         user = session.get(db.User, username)
@@ -117,9 +127,6 @@ def message():
 @app.route("/article", methods=["GET", "POST"])
 def article():
     username = request.cookies.get("username")
-    # token = request.cookies.get("auth_token")
-    # if not verify_token(token, username):
-    #     abort(401)
 
     if request.method == "GET":
         with db.Session(db.engine) as session:
@@ -137,9 +144,6 @@ def article():
 @app.route("/comment", methods=["GET", "POST"])
 def comment():
     username = request.cookies.get("username")
-    # token = request.cookies.get("auth_token")
-    # if not verify_token(token, username):
-    #     abort(401)
 
     id = request.args.get("id")
     if request.method == "GET":
@@ -158,9 +162,6 @@ def comment():
 @app.route("/edit", methods=["POST"])
 def edit():
     username = request.cookies.get("username")
-    # token = request.cookies.get("auth_token")
-    # if not verify_token(token, username):
-    #     abort(401)
 
     id = request.json.get("id")
     title = request.json.get("title")
@@ -172,9 +173,6 @@ def edit():
 @app.route("/delete", methods=["POST"])
 def delete():
     username = request.cookies.get("username")
-    # token = request.cookies.get("auth_token")
-    # if not verify_token(token, username):
-    #     abort(401)
 
     type = request.json.get("type")
     id = request.json.get("id")
@@ -185,9 +183,6 @@ def delete():
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
     username = request.cookies.get("username")
-    # token = request.cookies.get("auth_token")
-    # if not verify_token(token, username) or not db.is_admin(username):
-    #     abort(401)
 
     if request.method == "GET":
         with db.Session(db.engine) as session:

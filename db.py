@@ -139,7 +139,7 @@ def add_comment(author: str, article_id: int, content: str):
         return "Success!"
 
 
-def get_room_id(user1, user2):
+def get_private_chat_room(user1, user2):
     with Session(engine) as session:
         # Attempt to find a room with either combination of users
         room_id = session.scalar(
@@ -154,3 +154,38 @@ def get_room_id(user1, user2):
             room_id = room.id
 
         return room_id
+
+
+def create_room():
+    with Session(engine) as session:
+        room = Room()
+        session.add(room)
+        session.commit()
+        return room.id
+
+
+def get_messages(room_id):
+    with Session(engine) as session:
+        messages = session.scalars(select(Message).where(Message.room_id == room_id))
+        return [(message.sender, message.message) for message in messages]
+    
+
+def get_friends(username):
+    with Session(engine) as session:
+        user = session.get(User, username)
+        return [friend.username for friend in user.friends]
+    
+
+def get_room_receiver(room_id, username):
+    with Session(engine) as session:
+        room = session.get(Room, room_id)
+        if room is None:
+            return None
+        if room.user1 == username:
+            return room.user2
+        return room.user1
+    
+
+def room_exists(room_id):
+    with Session(engine) as session:
+        return session.scalar(select(Room.id).filter_by(id=room_id)) is not None

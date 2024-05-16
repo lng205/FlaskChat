@@ -38,11 +38,14 @@
   <!-- content -->
   <div class="row mt-5">
     <div class="col-8">
+      <div class="alert d-none" id="joinRoomAlert"></div>
+      <div class="container">Room Members: <span class="fw-bold" id="roomMembers"></span></div>
       <div class="container border" id="messageBox"></div>
 
-      <form class="input-group" id="startChatForm">
-        <input type="text" class="form-control" placeholder="username" {{ 'disabled' if user.mute_status }}>
-        <button class="btn btn-outline-primary" {{ 'disabled' if user.mute_status }}>Chat</button>
+      <form class="input-group" id="joinRoomForm">
+        <input type="text" class="form-control" placeholder="room id" {{ 'disabled' if user.mute_status }}>
+        <button class="btn btn-outline-success" {{ 'disabled' if user.mute_status }}>Join</button>
+        <button type="button" id="createRoomBtn" class="btn btn-outline-primary" {{ 'disabled' if user.mute_status }}>Create</button>
       </form>
 
       <form class="input-group d-none" id="messageInputForm">
@@ -70,14 +73,14 @@
       <div class="mb-4">
         <h3>Pending Friend Requests <button id="helpBtn" class="btn btn-outline-secondary">?</button></h3>
         <div id="helpPopup" class="btn btn-secondary help-popup" style="display: none;">
-            <h4>Pending Friend list</h4>
-            <p>Here you can see the list of users who have sent you friend requests. You can confirm or reject them.</p>
-            <p>If you accept a friend request, you will be able to chat with that user.</p>
-            <p>Otherwise you rejected, the user will be removed from the pending list.</p>
-            <button id="closePopup" class="btn btn-secondary help-close-b">Click to EXIT</button>
+          <h4>Pending Friend list</h4>
+          <p>Here you can see the list of users who have sent you friend requests. You can confirm or reject them.</p>
+          <p>If you accept a friend request, you will be able to chat with that user.</p>
+          <p>Otherwise you rejected, the user will be removed from the pending list.</p>
+          <button id="closePopup" class="btn btn-secondary help-close-b">Click to EXIT</button>
         </div>
         </button>
-       
+
         <ul class="list-group list-group-flush">
           {% for friend in user.pending_friends %}
           <li class="list-group-item d-flex justify-content-between">

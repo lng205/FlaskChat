@@ -1,19 +1,18 @@
 const socket = io();
 const username = Cookies.get("username");
-let room_id = parseInt(Cookies.get("room_id"));
+let room_id = Cookies.get("room_id");
 changeBoxDisplay(!!room_id);
 
 $('#addFriendForm').submit(handleAddFriend);
-$('#startChatForm').submit(handleStartChat);
+$('#joinRoomForm').submit(handleJoinRoom);
+$('#createRoomBtn').click(handleCreateRoom);
 $('.friend-item').click(handleStartChat);
 $('#messageInputForm').submit(sendMessage);
 $('.handle-request-button').click(handleFriendRequest);
 $('.remove-button').click(removeFriend);
 $('#leaveButton').click(leaveChat);
-// get the user mute status from class the_mute_status
-var isMuted = false;
-isMuted = $('.the_mute_status').text() === 'muted';
-
+$('#helpBtn').click(() => $('#helpPopup').show());
+$('#closePopup').click(() => $('#helpPopup').hide());
 
 // Socket event handlers
 socket.on("incoming", (msg, color = "black") => {
@@ -35,7 +34,11 @@ socket.on("add_friend_response", res => {
     toggleAlert('#addFriendAlert', res, res === "Success!");
 });
 
-// Form submission handlers
+socket.on("room_member_change", members => {
+    $("#roomMembers").text(members);
+})
+
+// Element event handlers
 function handleAddFriend(event) {
     event.preventDefault();
     const input = $('input', this);
@@ -43,22 +46,52 @@ function handleAddFriend(event) {
     input.val("");
 }
 
-function handleStartChat(event) {
-    const nameAttr = $(this).attr('name');
-    // if user is muted, then return a message to user
+function handleJoinRoom(event) {
+    event.preventDefault();
+    const input = $('input', this).val();
+    socket.emit("join_room", username, input, res => {
+        if (res === "Success!") {
+            room_id = input;
+            Cookies.set("room_id", room_id);
+            changeBoxDisplay(true);
+        }
+        else
+        {
+            toggleAlert('#joinRoomAlert', res, false);
+        }
+    });
+    $('input', this).val("");
+}
+
+function handleCreateRoom() {
+    socket.emit("create_room", username, res => {
+        if (typeof res !== "number") {
+            toggleAlert('#joinRoomAlert', res, false);
+            return;
+        }
+        room_id = res;
+        Cookies.set("room_id", room_id);
+        changeBoxDisplay(true);
+    });
+}
+
+function handleStartChat() {
+    const isMuted = $('.the_mute_status').text() === 'muted';
     if (isMuted) {
         alert('You are muted, you cannot chat with others');
         return;
     }
-    if (nameAttr) {
-        startChat(nameAttr);
-    }
-    else {
-        const input = $('input', this);
-        event.preventDefault();
-        startChat(input.val());
-        input.val("");
-    }
+
+    const receiver = $(this).attr('name');
+    socket.emit("private_chat", username, receiver, res => {
+        if (typeof res !== "number") {
+            alert(res);
+            return;
+        }
+        room_id = res;
+        Cookies.set("room_id", room_id);
+        changeBoxDisplay(true);
+    });
 }
 
 function sendMessage(event) {
@@ -74,7 +107,8 @@ function handleFriendRequest(event) {
         username,
         event.target.name,
         event.target.value
-    )}
+    )
+}
 
 function removeFriend(event) {
     socket.emit("remove_friend", username, event.target.name)
@@ -87,21 +121,9 @@ function leaveChat() {
 }
 
 // Utility functions
-function startChat(receiver) {
-    socket.emit("join", username, receiver, res => {
-        if (typeof res !== "number") {
-            alert(res);
-            return;
-        }
-        room_id = res;
-        Cookies.set("room_id", room_id);
-        changeBoxDisplay(true);
-    });
-}
-
 function changeBoxDisplay(isChatStarted) {
     $("#messageInputForm").toggleClass("d-none", !isChatStarted);
-    $("#startChatForm").toggleClass("d-none", isChatStarted);
+    $("#joinRoomForm").toggleClass("d-none", isChatStarted);
 }
 
 function toggleAlert(selector, message, isSuccess) {
@@ -110,11 +132,6 @@ function toggleAlert(selector, message, isSuccess) {
         .toggleClass('alert-success', isSuccess)
         .toggleClass('alert-danger', !isSuccess)
         .removeClass('d-none');
-}
 
-$('#helpBtn').click(function() {
-    $('#helpPopup').show();
-});
-$('#closePopup').click(function() {
-    $('#helpPopup').hide();
-});
+    setTimeout(() => $(selector).addClass('d-none'), 3000);
+}
